@@ -5,7 +5,7 @@
       <thead>
         <tr>
           <td>Society name</td>
-          <td>Postname</td>
+          <td>Post's name</td>
           <td>Application date</td>
           <td>Application response date</td>
           <td>Is accepted</td>
@@ -35,3 +35,23 @@ const jobApplications = ref<Array<JobApplication>>([
   new JobApplication('Fake society5', 'Fake post5', new Date(), undefined, undefined)
 ])
 </script>
+<style lang="css" scoped>
+table {
+  border-collapse: collapse;
+}
+
+tr:nth-child(2n),
+thead {
+  background-color: #548ca4;
+}
+
+tr td {
+  text-align: center;
+  min-width: 7rem;
+  padding-inline: 0.5rem;
+}
+
+tr td:first-child {
+  text-align: start;
+}
+</style>

@@ -25,7 +25,10 @@ const router = createRouter({
     {
       path: '/tracking',
       name: 'tracking',
-      component: TrackingView
+      component: TrackingView,
+      meta: {
+        requireAuth: true
+      }
     },
     {
       path: '/about',
