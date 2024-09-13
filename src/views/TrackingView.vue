@@ -78,6 +78,7 @@ function sort(col: keyof JobApplication) {
 <style lang="css" scoped>
 table {
   border-collapse: collapse;
+  margin-top: 1rem;
 }
 
 tr:nth-child(2n),

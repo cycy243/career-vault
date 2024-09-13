@@ -16,6 +16,10 @@ import CVAuthMenu from '@/components/globals/menu/CVAuthMenu.vue'
   width: 8rem;
 }
 
+.header {
+  align-items: flex-end;
+}
+
 .header,
 .wrapper.menu-wrapper {
   display: flex;
@@ -24,6 +28,7 @@ import CVAuthMenu from '@/components/globals/menu/CVAuthMenu.vue'
 
 .header .wrapper.menu-wrapper {
   justify-content: space-between;
+  margin-inline: 2.5%;
   width: 100%;
 }
 </style>
