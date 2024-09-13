@@ -3,20 +3,26 @@
     <h1>Register</h1>
     <form @submit="onSubmit">
       <fieldset>
+        <label for="lastname">Lastname</label>
         <input type="lastname" v-model="lastname" v-bind="lastnameAttrs" />
         <div>{{ errors.lastname }}</div>
+        <label for="firstname">Firstname</label>
         <input type="firstname" v-model="firstname" v-bind="firstnameAttrs" />
         <div>{{ errors.firstname }}</div>
       </fieldset>
       <fieldset>
+        <label for="pseudo">pseudo</label>
         <input type="pseudo" v-model="pseudo" v-bind="pseudoAttrs" />
         <div>{{ errors.pseudo }}</div>
+        <label for="email">email</label>
         <input type="email" v-model="email" v-bind="emailAttrs" />
         <div>{{ errors.email }}</div>
       </fieldset>
       <fieldset>
+        <label for="password">password</label>
         <input type="password" v-model="password" v-bind="passwordAttrs" />
         <div>{{ errors.password }}</div>
+        <label for="confirmationPwd">confirmationPwd</label>
         <input type="confirmationPwd" v-model="confirmationPwd" v-bind="confirmationPwdAttrs" />
         <div>{{ errors.confirmationPwd }}</div>
       </fieldset>
@@ -28,6 +34,12 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
+import type IAuthRepository from '@/modules/repository/IAuthRepository'
+import { inject } from 'vue'
+
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const schema = toTypedSchema(
   yup.object({
@@ -49,8 +61,18 @@ const [pseudo, pseudoAttrs] = defineField('pseudo')
 const [lastname, lastnameAttrs] = defineField('lastname')
 const [firstname, firstnameAttrs] = defineField('firstname')
 
-const onSubmit = handleSubmit((values) => {
-  console.log(values)
+const authRepository = inject<IAuthRepository>('userAuthReposiroty') as IAuthRepository
+
+const onSubmit = handleSubmit(async (values) => {
+  authStore.login(
+    (await authRepository.register({
+      email: values.email,
+      pseudo: values.pseudo,
+      password: values.password,
+      firstname: values.firstname,
+      lastname: values.lastname
+    }))!
+  )
 })
 </script>
 <style lang="css"></style>

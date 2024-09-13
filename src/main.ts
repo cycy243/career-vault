@@ -1,14 +1,31 @@
 import './assets/main.css'
 
-import { createApp } from 'vue'
+import { createApp, type App as AppType } from 'vue'
 import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { auth, usersCollection } from './modules/repository/implementation/firebase/firebase'
+import type IAuthRepository from './modules/repository/IAuthRepository'
+import FireBaseAuthRepository from './modules/repository/implementation/firebase/fireBaseAuthRepository'
 
-const app = createApp(App)
+let app: AppType<Element> | undefined = undefined
 
-app.use(createPinia())
-app.use(router)
+auth.onAuthStateChanged(() => {
+  /**
+   * The app will only be initialized if the app is empty
+   */
+  if (!app) {
+    app = createApp(App)
 
-app.mount('#app')
+    app.use(createPinia())
+    app.use(router)
+
+    app.provide<IAuthRepository>(
+      'userAuthReposiroty',
+      new FireBaseAuthRepository(usersCollection, auth)
+    )
+
+    app.mount('#app')
+  }
+})
