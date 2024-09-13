@@ -4,11 +4,26 @@
     <table>
       <thead>
         <tr>
-          <td @click="sort('societyName')">Society name</td>
-          <td @click="sort('jobTitle')">Post's name</td>
-          <td @click="sort('sendDate')">Application date</td>
-          <td @click="sort('responseDate')">Application response date</td>
-          <td @click="sort('positiveReponse')">Is accepted</td>
+          <td @click="sort('societyName')">
+            Society name
+            <IconSortArrow v-if="'societyName' == sortColumn" :is-ascending="ascending" />
+          </td>
+          <td @click="sort('jobTitle')">
+            Post's name
+            <IconSortArrow v-if="'jobTitle' == sortColumn" :is-ascending="ascending" />
+          </td>
+          <td @click="sort('sendDate')">
+            Send date
+            <IconSortArrow v-if="'sendDate' == sortColumn" :is-ascending="ascending" />
+          </td>
+          <td @click="sort('responseDate')">
+            response date
+            <IconSortArrow v-if="'responseDate' == sortColumn" :is-ascending="ascending" />
+          </td>
+          <td @click="sort('positiveReponse')">
+            Is accepted
+            <IconSortArrow v-if="'positiveReponse' == sortColumn" :is-ascending="ascending" />
+          </td>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +41,8 @@
   </main>
 </template>
 <script setup lang="ts">
+import IconSortArrow from '../components/icons/IconSortArrow.vue'
+
 import JobApplication from '@/modules/model/jobApplication'
 import { ref } from 'vue'
 
@@ -40,7 +57,7 @@ const jobApplications = ref<Array<JobApplication>>([
   new JobApplication('Fake society5', 'Fake post5', new Date(), undefined, undefined)
 ])
 
-function sort(col: string) {
+function sort(col: keyof JobApplication) {
   if (sortColumn.value === col) {
     ascending.value = !ascending.value
   } else {
@@ -49,9 +66,9 @@ function sort(col: string) {
   }
   const isAscending = ascending.value
   jobApplications.value.sort((a, b) => {
-    if (a[col] > b[col]) {
+    if (a[col]! > b[col]!) {
       return isAscending ? 1 : -1
-    } else if (a[col] < b[col]) {
+    } else if (a[col]! < b[col]!) {
       return isAscending ? -1 : 1
     }
     return 0
@@ -68,13 +85,21 @@ thead {
   background-color: #548ca4;
 }
 
+thead td {
+  text-transform: uppercase;
+  font-weight: bolder;
+  color: white;
+  text-align: start;
+}
+
 tr td {
   text-align: center;
-  min-width: 7rem;
+  min-width: 10rem;
   padding-inline: 0.5rem;
 }
 
-tr td:first-child {
+tr td:first-child,
+thead td {
   text-align: start;
 }
 </style>
