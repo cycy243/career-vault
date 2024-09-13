@@ -4,6 +4,7 @@ export default class JobApplication {
     public jobTitle: string,
     public sendDate: Date,
     public positiveReponse: Boolean | undefined,
-    public responseDate: Date | undefined
+    public responseDate: Date | undefined,
+    public applicationLink?: string
   ) {}
 }
