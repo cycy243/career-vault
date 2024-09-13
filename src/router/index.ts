@@ -27,7 +27,7 @@ const router = createRouter({
       name: 'tracking',
       component: TrackingView,
       meta: {
-        requireAuth: true
+        requiresAuth: true
       }
     },
     {
