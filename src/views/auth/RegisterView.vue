@@ -38,6 +38,7 @@ import type IAuthRepository from '@/modules/repository/IAuthRepository'
 import { inject } from 'vue'
 
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 
@@ -63,6 +64,8 @@ const [firstname, firstnameAttrs] = defineField('firstname')
 
 const authRepository = inject<IAuthRepository>('userAuthReposiroty') as IAuthRepository
 
+const router = useRouter()
+
 const onSubmit = handleSubmit(async (values) => {
   authStore.login(
     (await authRepository.register({
@@ -73,6 +76,7 @@ const onSubmit = handleSubmit(async (values) => {
       lastname: values.lastname
     }))!
   )
+  router.push({ name: 'tracking' })
 })
 </script>
 <style lang="css"></style>

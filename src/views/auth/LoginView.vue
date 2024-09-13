@@ -20,6 +20,7 @@ import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 import type IAuthRepository from '@/modules/repository/IAuthRepository'
 import { inject } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
 
@@ -39,8 +40,11 @@ const [password, passwordAttrs] = defineField('password')
 
 const authRepository = inject<IAuthRepository>('userAuthReposiroty') as IAuthRepository
 
+const router = useRouter()
+
 const onSubmit = handleSubmit(async (values) => {
   authStore.login((await authRepository.loginWithCred(values.email, values.password))!)
+  router.push({ name: 'tracking' })
 })
 </script>
 <style lang="css"></style>
