@@ -2,40 +2,76 @@
   <form @submit="onSubmit">
     <fieldset>
       <legend>General</legend>
-      <label for="societyName">societyName</label>
-      <input type="text" v-model="societyName" v-bind="societyNameAttrs" />
-      <div>{{ errors.societyName }}</div>
-      <label for="jobTitle">jobTitle</label>
-      <input type="text" v-model="jobTitle" v-bind="jobTitleAttrs" />
-      <div>{{ errors.jobTitle }}</div>
+      <FormInput
+        :name="'societyName'"
+        :title="'Company name'"
+        :defaultValue="societyName"
+        :error="errors.societyName"
+        :type="'text'"
+        v-model="societyName"
+        v-bind="societyNameAttrs"
+      />
+      <FormInput
+        :name="'jobTitle'"
+        title="Job's title"
+        :defaultValue="jobTitle"
+        :error="errors.jobTitle"
+        :type="'text'"
+        v-model="jobTitle"
+        v-bind="jobTitleAttrs"
+      />
     </fieldset>
     <fieldset>
       <legend>Satus</legend>
-      <label for="sendDate">sendDate</label>
-      <input type="date" v-model="sendDate" v-bind="sendDateAttrs" />
-      <div>{{ errors.sendDate }}</div>
-      <label for="responseDate">responseDate</label>
-      <input type="date" v-model="responseDate" v-bind="responseDateAttrs" />
-      <div>{{ errors.responseDate }}</div>
-      <label for="isAccepted">isAccepted</label>
-      <input type="checkbox" v-model="isAccepted" v-bind="isAcceptedAttrs" />
-      <div>{{ errors.isAccepted }}</div>
+      <FormInput
+        name="sendDate"
+        title="Date send"
+        :error="errors.sendDate"
+        type="date"
+        v-model="sendDate"
+        v-bind="sendDateAttrs"
+      />
+      <FormInput
+        name="responseDate"
+        title="Date response"
+        :error="errors.responseDate"
+        type="date"
+        v-model="responseDate"
+        v-bind="responseDateAttrs"
+      />
+      <FormInput
+        name="isAccepted"
+        title="Date response"
+        :defaultValue="isAccepted ? 'true' : 'false'"
+        :error="errors.isAccepted"
+        type="checkbox"
+        v-model="isAccepted"
+        v-bind="isAcceptedAttrs"
+      />
     </fieldset>
     <fieldset>
       <legend>Details</legend>
       <label for="offerDetails">offerDetails</label>
       <input type="file" v-bind="offerDetailsAttrs" />
       <div>{{ errors.offerDetails }}</div>
-      <label for="offerDetails">offerDetails</label>
-      <input type="text" v-model="offerDetails" v-bind="offerDetailsAttrs" />
-      <div>{{ errors.offerDetails }}</div>
+      <FormInput
+        name="offerDetails"
+        title="Offer's details"
+        :defaultValue="offerDetails ? `${offerDetails}` : ''"
+        :error="errors.offerDetails"
+        type="text"
+        v-model="offerDetails"
+        v-bind="offerDetailsAttrs"
+      />
     </fieldset>
+    <button type="submit">Add</button>
   </form>
 </template>
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
+import FormInput from './FormInput.vue'
 
 const schema = toTypedSchema(
   yup.object({
@@ -50,7 +86,24 @@ const schema = toTypedSchema(
 
 const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema })
 
-const onSubmit = handleSubmit((values) => {})
+type JobApplicationFormEmits = {
+  (
+    e: 'submit',
+    value: {
+      societyName: string
+      jobTitle: string
+      sendDate: Date
+      responseDate: Date
+      isAccepted: boolean
+      offerDetails: any
+    }
+  ): void
+}
+const emit = defineEmits<JobApplicationFormEmits>()
+
+const onSubmit = handleSubmit((values) => {
+  emit('submit', values)
+})
 
 const [societyName, societyNameAttrs] = defineField('societyName')
 const [jobTitle, jobTitleAttrs] = defineField('jobTitle')
