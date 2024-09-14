@@ -22,7 +22,7 @@ describe('HelloWorld', () => {
     const jobApplications = Array<JobApplication>()
     const wrapper = shallowMount(JobApplicationTable, { props: { jobApplications } })
     const rows = wrapper.findAll('tbody tr')
-    expect(rows.length).toBe(jobApplications.length)
+    expect(rows.length).toBe(1)
     expect(wrapper.text()).toContain('No application made yet')
   })
 })
