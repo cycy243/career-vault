@@ -24,6 +24,10 @@
             Is accepted
             <IconSortArrow v-if="'positiveReponse' == sortColumn" :is-ascending="ascending" />
           </td>
+          <td @click="sort('applicationLink')">
+            Is accepted
+            <IconSortArrow v-if="'applicationLink' == sortColumn" :is-ascending="ascending" />
+          </td>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +39,7 @@
             {{ application.responseDate?.toLocaleDateString() ?? 'No response yet' }}
           </td>
           <td>{{ application.positiveReponse ?? '?' }}</td>
+          <td><a :href="application.applicationLink">offre's link</a></td>
         </tr>
       </tbody>
     </table>
@@ -50,11 +55,11 @@ const sortColumn = ref<string>()
 
 const ascending = ref(false)
 const jobApplications = ref<Array<JobApplication>>([
-  new JobApplication('Fake society1', 'Fake post1', new Date(), undefined, undefined),
-  new JobApplication('Fake society2', 'Fake post2', new Date(), undefined, undefined),
-  new JobApplication('Fake society3', 'Fake post3', new Date(), undefined, undefined),
-  new JobApplication('Fake society4', 'Fake post4', new Date(), undefined, undefined),
-  new JobApplication('Fake society5', 'Fake post5', new Date(), undefined, undefined)
+  new JobApplication('Fake society1', 'Fake post1', new Date(), undefined, undefined, ''),
+  new JobApplication('Fake society2', 'Fake post2', new Date(), undefined, undefined, ''),
+  new JobApplication('Fake society3', 'Fake post3', new Date(), undefined, undefined, ''),
+  new JobApplication('Fake society4', 'Fake post4', new Date(), undefined, undefined, ''),
+  new JobApplication('Fake society5', 'Fake post5', new Date(), undefined, undefined, '')
 ])
 
 function sort(col: keyof JobApplication) {
