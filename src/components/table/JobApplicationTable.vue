@@ -29,15 +29,20 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(application, index) in jobApplications" :key="index">
-        <td>{{ application.societyName }}</td>
-        <td>{{ application.jobTitle }}</td>
-        <td>{{ application.sendDate.toLocaleDateString() }}</td>
-        <td>
-          {{ application.responseDate?.toLocaleDateString() ?? 'No response yet' }}
-        </td>
-        <td>{{ application.positiveReponse ?? '?' }}</td>
-        <td><a :href="application.applicationLink">offre's link</a></td>
+      <template v-if="jobApplications.length > 0">
+        <tr v-for="(application, index) in jobApplications" :key="index">
+          <td>{{ application.societyName }}</td>
+          <td>{{ application.jobTitle }}</td>
+          <td>{{ application.sendDate.toLocaleDateString() }}</td>
+          <td>
+            {{ application.responseDate?.toLocaleDateString() ?? 'No response yet' }}
+          </td>
+          <td>{{ application.positiveReponse ?? '?' }}</td>
+          <td><a :href="application.applicationLink">offre's link</a></td>
+        </tr>
+      </template>
+      <tr v-else class="error-row">
+        <td colspan="6">No application made yet</td>
       </tr>
     </tbody>
   </table>
@@ -109,5 +114,9 @@ td:last-child a {
 }
 td:last-child a:hover {
   text-decoration: underline;
+}
+
+.error-row td {
+  text-align: center !important;
 }
 </style>
