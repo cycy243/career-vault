@@ -18,7 +18,8 @@ import IconClose from '@/components/icons/IconClose.vue'
 import JobApplicationTable from '@/components/table/JobApplicationTable.vue'
 
 import JobApplication from '@/modules/model/jobApplication'
-import { ref } from 'vue'
+import type IJobApplicationRepository from '@/modules/repository/IJobApplicationRepository'
+import { inject, ref } from 'vue'
 
 const showForm = ref(false)
 
@@ -32,8 +33,16 @@ const jobApplications = ref<Array<JobApplication>>([
 
 const toggleFormDisplay = () => (showForm.value = !showForm.value)
 
-const onSubmit = (values: any) => {
-  alert(JSON.stringify(values))
+const jobApplicationRepository = inject<IJobApplicationRepository>(
+  'jobApplicationRepository'
+) as IJobApplicationRepository
+
+const onSubmit = async (values: JobApplication, application: File | string) => {
+  const result = await jobApplicationRepository.addApplication(values, application)
+  if (result) {
+    showForm.value = false
+    jobApplications.value.push(result)
+  }
 }
 </script>
 <style lang="css" scoped>
