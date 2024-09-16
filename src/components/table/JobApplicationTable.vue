@@ -38,7 +38,7 @@
             {{ application.responseDate?.toLocaleDateString() ?? 'No response yet' }}
           </td>
           <td>{{ application.positiveReponse ?? '?' }}</td>
-          <td><a :href="application.applicationLink">offre's link</a></td>
+          <td><a :href="application.applicationLink" target="_blank">offre's link</a></td>
         </tr>
       </template>
       <tr v-else class="error-row">
