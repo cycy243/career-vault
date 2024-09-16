@@ -84,8 +84,8 @@ const schema = toTypedSchema(
   yup.object({
     societyName: yup.string().required(),
     jobTitle: yup.string().required(),
-    sendDate: yup.date().required(),
-    responseDate: yup.date().required(),
+    sendDate: yup.date(),
+    responseDate: yup.date(),
     isAccepted: yup.boolean().required(),
     offerDetails: yup.mixed().required()
   })
