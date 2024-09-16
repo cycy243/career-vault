@@ -41,7 +41,7 @@
       />
       <FormInput
         name="isAccepted"
-        title="Date response"
+        title="Is accepted"
         :defaultValue="isAccepted ? 'true' : 'false'"
         :error="errors.isAccepted"
         type="checkbox"
@@ -51,8 +51,12 @@
     </fieldset>
     <fieldset>
       <legend>Details</legend>
-      <label for="offerDetails">offerDetails</label>
-      <input type="file" v-bind="offerDetailsAttrs" />
+      <label for="offerDetails">Offer's details</label>
+      <input
+        type="file"
+        v-bind="offerDetailsAttrs"
+        @change.prevent="offerDetailsFileChanged($event)"
+      />
       <div>{{ errors.offerDetails }}</div>
       <FormInput
         name="offerDetails"
@@ -62,6 +66,7 @@
         type="text"
         v-model="offerDetails"
         v-bind="offerDetailsAttrs"
+        @change="offerDetailsChange"
       />
     </fieldset>
     <button type="submit">Add</button>
@@ -72,6 +77,8 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 import FormInput from './FormInput.vue'
+import JobApplication from '@/modules/model/jobApplication'
+import { ref } from 'vue'
 
 const schema = toTypedSchema(
   yup.object({
@@ -87,23 +94,38 @@ const schema = toTypedSchema(
 const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema })
 
 type JobApplicationFormEmits = {
-  (
-    e: 'submit',
-    value: {
-      societyName: string
-      jobTitle: string
-      sendDate: Date
-      responseDate: Date
-      isAccepted: boolean
-      offerDetails: any
-    }
-  ): void
+  (e: 'submit', value: JobApplication, application: File | string): void
 }
 const emit = defineEmits<JobApplicationFormEmits>()
+const applicationFile = ref<File | string>()
 
 const onSubmit = handleSubmit((values) => {
-  emit('submit', values)
+  emit(
+    'submit',
+    new JobApplication(
+      values.societyName,
+      values.jobTitle,
+      values.sendDate,
+      values.isAccepted,
+      values.responseDate
+    ),
+    applicationFile.value || ''
+  )
 })
+
+function offerDetailsFileChanged($event: Event) {
+  // eslint-disable-next-line no-unsafe-optional-chaining
+  const event = $event as InputEvent
+  const files = event.dataTransfer
+    ? [...event.dataTransfer.files]
+    : [...((event.target as any)?.files as FileList)]
+  offerDetails.value = files[0]
+  offerDetailsChange(files[0])
+}
+
+function offerDetailsChange(offerDetails: File | string) {
+  applicationFile.value = offerDetails
+}
 
 const [societyName, societyNameAttrs] = defineField('societyName')
 const [jobTitle, jobTitleAttrs] = defineField('jobTitle')
