@@ -66,7 +66,7 @@
         type="text"
         v-model="offerDetails"
         v-bind="offerDetailsAttrs"
-        @change="offerDetailsChange"
+        @change.prevent="offerDetailsChange"
       />
     </fieldset>
     <button type="submit">Add</button>
@@ -100,6 +100,9 @@ const emit = defineEmits<JobApplicationFormEmits>()
 const applicationFile = ref<File | string>()
 
 const onSubmit = handleSubmit((values) => {
+  console.log(values)
+  console.log(errors.value)
+
   emit(
     'submit',
     new JobApplication(
