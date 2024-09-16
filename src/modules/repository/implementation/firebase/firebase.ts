@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import 'firebase/compat/firestore'
 import 'firebase/compat/storage'
@@ -23,7 +22,7 @@ const storage = getStorage(app)
 
 // Initialize the table of the database
 const usersCollection = collection(db, 'users')
-const songsCollection = collection(db, 'songs')
+const jobApplicationsCollection = collection(db, 'jobApplications')
 const commentsCollection = collection(db, 'comments')
 
-export { auth, db, usersCollection, songsCollection, storage, commentsCollection }
+export { auth, db, usersCollection, jobApplicationsCollection, storage, commentsCollection }
