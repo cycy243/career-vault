@@ -33,7 +33,7 @@
         <tr v-for="(application, index) in jobApplications" :key="index">
           <td>{{ application.societyName }}</td>
           <td>{{ application.jobTitle }}</td>
-          <td>{{ application.sendDate.toLocaleDateString() }}</td>
+          <td>{{ application.sendDate?.toLocaleDateString() ?? 'Nothing sent yet' }}</td>
           <td>
             {{ application.responseDate?.toLocaleDateString() ?? 'No response yet' }}
           </td>
