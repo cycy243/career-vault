@@ -100,9 +100,6 @@ const emit = defineEmits<JobApplicationFormEmits>()
 const applicationFile = ref<File | string>()
 
 const onSubmit = handleSubmit((values) => {
-  console.log(values)
-  console.log(errors.value)
-
   emit(
     'submit',
     new JobApplication(
