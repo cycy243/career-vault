@@ -5,10 +5,16 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-import { auth, usersCollection } from './modules/repository/implementation/firebase/firebase'
+import {
+  auth,
+  jobApplicationsCollection,
+  usersCollection
+} from './modules/repository/implementation/firebase/firebase'
 import type IAuthRepository from './modules/repository/IAuthRepository'
 import FireBaseAuthRepository from './modules/repository/implementation/firebase/fireBaseAuthRepository'
 import { useAuthStore } from './stores/auth'
+import type IJobApplicationRepository from './modules/repository/IJobApplicationRepository'
+import FirebaseJobApplicationRepository from './modules/repository/implementation/firebaseJobApplicationRepository'
 
 let app: AppType<Element> | undefined = undefined
 
@@ -40,6 +46,11 @@ auth.onAuthStateChanged(() => {
     app.provide<IAuthRepository>(
       'userAuthReposiroty',
       new FireBaseAuthRepository(usersCollection, auth)
+    )
+
+    app.provide<IJobApplicationRepository>(
+      'jobApplicationRepository',
+      new FirebaseJobApplicationRepository(jobApplicationsCollection)
     )
 
     app.mount('#app')
