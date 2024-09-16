@@ -66,7 +66,7 @@
         type="text"
         v-model="offerDetails"
         v-bind="offerDetailsAttrs"
-        @change.prevent="offerDetailsChange"
+        @update:modelValue="(value) => offerDetailsChange(value)"
       />
     </fieldset>
     <button type="submit">Add</button>
