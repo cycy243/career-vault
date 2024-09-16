@@ -7,7 +7,7 @@
       :id="id || name"
       :placeholder="placeholder"
       v-model="internalValue"
-      @input="$emit('update:modelValue', $event.target?.value)"
+      @input="$emit('update:modelValue', ($event.target as any)?.value)"
       @blur="$emit('blur')"
     />
     <div v-if="error" class="error_wrapper">
