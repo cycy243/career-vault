@@ -19,17 +19,15 @@ import JobApplicationTable from '@/components/table/JobApplicationTable.vue'
 
 import JobApplication from '@/modules/model/jobApplication'
 import type IJobApplicationRepository from '@/modules/repository/IJobApplicationRepository'
-import { inject, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
+
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const showForm = ref(false)
 
-const jobApplications = ref<Array<JobApplication>>([
-  new JobApplication('Fake society1', 'Fake post1', new Date(), undefined, undefined, ''),
-  new JobApplication('Fake society2', 'Fake post2', new Date(), undefined, undefined, ''),
-  new JobApplication('Fake society3', 'Fake post3', new Date(), undefined, undefined, ''),
-  new JobApplication('Fake society4', 'Fake post4', new Date(), undefined, undefined, ''),
-  new JobApplication('Fake society5', 'Fake post5', new Date(), undefined, undefined, '')
-])
+const jobApplications = ref<Array<JobApplication>>([])
 
 const toggleFormDisplay = () => (showForm.value = !showForm.value)
 
@@ -38,12 +36,23 @@ const jobApplicationRepository = inject<IJobApplicationRepository>(
 ) as IJobApplicationRepository
 
 const onSubmit = async (values: JobApplication, application: File | string) => {
-  const result = await jobApplicationRepository.addApplication(values, application)
+  const result = await jobApplicationRepository.addApplication(
+    authStore.authenticatedUser?.pseudo!,
+    values,
+    application
+  )
   if (result) {
     showForm.value = false
     jobApplications.value.push(result)
   }
 }
+
+onMounted(async () => {
+  const gettedApplications = await jobApplicationRepository.getApplications(
+    authStore.authenticatedUser?.pseudo!
+  )
+  jobApplications.value = gettedApplications!
+})
 </script>
 <style lang="css" scoped>
 .close-icon {
