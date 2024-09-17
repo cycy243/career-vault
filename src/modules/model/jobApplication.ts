@@ -12,9 +12,9 @@ export default class JobApplication {
   static createJobApplication(object: {
     societyName: string
     jobTitle: string
-    sendDate: Date | undefined
-    positiveReponse: Boolean | undefined
-    responseDate: Date | undefined
+    sendDate?: Date
+    positiveReponse?: Boolean
+    responseDate?: Date
     applicationLink?: string
     applicationId?: string
   }): JobApplication {
