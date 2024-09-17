@@ -26,6 +26,7 @@
           Is accepted
           <IconSortArrow v-if="'applicationLink' == sortColumn" :is-ascending="ascending" />
         </td>
+        <td>Actions</td>
       </tr>
     </thead>
     <tbody>
@@ -39,10 +40,11 @@
           </td>
           <td>{{ application.positiveReponse ?? '?' }}</td>
           <td><a :href="application.applicationLink" target="_blank">offre's link</a></td>
+          <td><IconDelete @click="onDeleteClicked(application.applicationId)" /></td>
         </tr>
       </template>
       <tr v-else class="error-row">
-        <td colspan="6">No application made yet</td>
+        <td colspan="7">No application made yet</td>
       </tr>
     </tbody>
   </table>
@@ -51,11 +53,17 @@
 import type JobApplication from '@/modules/model/jobApplication'
 import { ref } from 'vue'
 import IconSortArrow from '../icons/IconSortArrow.vue'
+import IconDelete from '../icons/IconDelete.vue'
 
 interface JobApplicationTableProps {
   jobApplications: Array<JobApplication>
 }
 
+type JobApplicationTableEmits = {
+  (e: 'delete', value: string | undefined): void
+}
+
+const emits = defineEmits<JobApplicationTableEmits>()
 const props = defineProps<JobApplicationTableProps>()
 const applications = ref<Array<JobApplication>>([])
 
@@ -78,6 +86,10 @@ function sort(col: keyof JobApplication) {
     }
     return 0
   })
+}
+
+function onDeleteClicked(applicationId: string | undefined) {
+  emits('delete', applicationId)
 }
 </script>
 <style lang="css">
