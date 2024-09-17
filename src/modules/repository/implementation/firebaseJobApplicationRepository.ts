@@ -1,6 +1,7 @@
 import JobApplication from '@/modules/model/jobApplication'
 import type IJobApplicationRepository from '../IJobApplicationRepository'
 import {
+  deleteDoc,
   doc,
   getDocs,
   query,
@@ -28,7 +29,7 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
       } else {
         application.applicationLink = offerDetails
       }
-      await setDoc(createdDoc, { ...application, pseudo: uid })
+      await setDoc(createdDoc, { ...application, applicationId: createdDoc.id, pseudo: uid })
       return application
     } catch (error) {
       console.error(error)
@@ -43,6 +44,7 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
 
       snapshot.forEach((doc) => {
         const data = doc.data() as any
+        data.applicationId = doc.id
         data.sendDate = new Date(Number.parseInt((data.sendDate as any).seconds) * 1000)
         data.responseDate = data.responseDate
           ? new Date(Number.parseInt((data.responseDate as any).seconds) * 1000)
@@ -54,6 +56,17 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
     } catch (error) {
       console.error(error)
       return undefined
+    }
+  }
+
+  async deleteApplication(applicationId: string): Promise<boolean> {
+    try {
+      const docFound = doc(this.collection, applicationId)
+      await deleteDoc(docFound)
+      return true
+    } catch (error) {
+      console.error(error)
+      return false
     }
   }
 }

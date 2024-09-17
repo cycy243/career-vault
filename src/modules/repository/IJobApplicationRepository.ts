@@ -8,4 +8,6 @@ export default interface IJobApplicationRepository {
   ): Promise<JobApplication | undefined>
 
   getApplications(uid: string): Promise<Array<JobApplication> | undefined>
+
+  deleteApplication(applicationId: string): Promise<boolean>
 }
