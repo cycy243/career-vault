@@ -30,7 +30,7 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
         application.applicationLink = offerDetails
       }
       await setDoc(createdDoc, { ...application, applicationId: createdDoc.id, pseudo: uid })
-      return application
+      return { ...application, applicationId: createdDoc.id }
     } catch (error) {
       console.error(error)
       return undefined
