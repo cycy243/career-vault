@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import 'firebase/compat/auth'
 import 'firebase/compat/firestore'
 import 'firebase/compat/storage'
-import { collection, getFirestore } from 'firebase/firestore'
+import { collection, getFirestore, initializeFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
 // Initialize Firebase
@@ -14,6 +14,10 @@ const app = initializeApp({
   storageBucket: import.meta.env.VITE_STORAGE_BUCK,
   appId: import.meta.env.VITE_APP_ID,
   messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID
+})
+
+initializeFirestore(app, {
+  ignoreUndefinedProperties: true
 })
 
 const auth = getAuth(app)
