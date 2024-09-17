@@ -9,7 +9,7 @@
       </div>
       <JobApplicationForm class="form" @submit="onSubmit" />
     </div>
-    <JobApplicationTable :job-applications="jobApplications" />
+    <JobApplicationTable :job-applications="jobApplications" @delete="onDeleteApplication" />
   </main>
 </template>
 <script setup lang="ts">
@@ -44,6 +44,21 @@ const onSubmit = async (values: JobApplication, application: File | string) => {
   if (result) {
     showForm.value = false
     jobApplications.value.push(result)
+  }
+}
+
+const onDeleteApplication = async (applicationId: string | undefined) => {
+  if (!applicationId) {
+    console.info("Doc id shouldn't be empty")
+    return false
+  }
+
+  const deleteResult = await jobApplicationRepository.deleteApplication(applicationId)
+  if (deleteResult) {
+    console.info('Doc sucessfully deleted')
+    jobApplications.value = jobApplications.value.filter((a) => a.applicationId !== applicationId)
+  } else {
+    console.info('An error occured')
   }
 }
 
