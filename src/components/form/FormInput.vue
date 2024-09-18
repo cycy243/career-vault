@@ -32,7 +32,7 @@ const props = defineProps<FormInputProps<string | Date | null>>()
 const emit = defineEmits(['update:modelValue', 'blur'])
 
 // Reactive internal value to track the input field's value
-const internalValue = ref(props.defaultValue || '')
+const internalValue = ref(props.defaultValue)
 
 // Watch for changes in internalValue and emit the 'update:modelValue' event
 watch(internalValue, (newValue: any) => {
