@@ -5,17 +5,17 @@
       <FormInput
         :name="'societyName'"
         :title="'Company name'"
-        :defaultValue="societyName"
         :error="errors.societyName"
         :type="'text'"
+        :defaultValue="jobApplication?.societyName"
         v-model="societyName"
         v-bind="societyNameAttrs"
       />
       <FormInput
         :name="'jobTitle'"
         title="Job's title"
-        :defaultValue="jobTitle"
         :error="errors.jobTitle"
+        :defaultValue="jobApplication?.jobTitle"
         :type="'text'"
         v-model="jobTitle"
         v-bind="jobTitleAttrs"
@@ -27,6 +27,7 @@
         name="sendDate"
         title="Date send"
         :error="errors.sendDate"
+        :defaultValue="jobApplication?.sendDate?.toISOString().slice(0, 10)"
         type="date"
         v-model="sendDate"
         v-bind="sendDateAttrs"
@@ -35,6 +36,7 @@
         name="responseDate"
         title="Date response"
         :error="errors.responseDate"
+        :defaultValue="jobApplication?.responseDate?.toISOString().slice(0, 10)"
         type="date"
         v-model="responseDate"
         v-bind="responseDateAttrs"
@@ -42,8 +44,8 @@
       <FormInput
         name="isAccepted"
         title="Is accepted"
-        :defaultValue="isAccepted ? 'true' : 'false'"
         :error="errors.isAccepted"
+        :defaultValue="`${jobApplication?.positiveReponse}`"
         type="checkbox"
         v-model="isAccepted"
         v-bind="isAcceptedAttrs"
@@ -53,6 +55,7 @@
       <legend>Details</legend>
       <label for="offerDetails">Offer's details</label>
       <input
+        name="offerDetails"
         type="file"
         v-bind="offerDetailsAttrs"
         @change.prevent="offerDetailsFileChanged($event)"
@@ -61,8 +64,8 @@
       <FormInput
         name="offerDetails"
         title="Offer's details"
-        :defaultValue="offerDetails ? `${offerDetails}` : ''"
         :error="errors.offerDetails"
+        :defaultValue="jobApplication?.applicationLink"
         type="text"
         v-model="offerDetails"
         v-bind="offerDetailsAttrs"
@@ -78,7 +81,13 @@ import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 import FormInput from './FormInput.vue'
 import JobApplication from '@/modules/model/jobApplication'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+
+type JobApplicationFormProps = {
+  jobApplication?: JobApplication
+}
+
+const props = defineProps<JobApplicationFormProps>()
 
 const schema = toTypedSchema(
   yup.object({
@@ -91,13 +100,16 @@ const schema = toTypedSchema(
   })
 )
 
-const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema })
+const { defineField, handleSubmit, errors } = useForm({
+  validationSchema: schema
+})
 
 type JobApplicationFormEmits = {
   (e: 'submit', value: JobApplication, application: File | string): void
 }
-const emit = defineEmits<JobApplicationFormEmits>()
 const applicationFile = ref<File | string>()
+
+const emit = defineEmits<JobApplicationFormEmits>()
 
 const onSubmit = handleSubmit((values) => {
   emit(

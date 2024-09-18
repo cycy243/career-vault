@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, assert } from 'vitest'
 
 import * as yup from 'yup'
 import { flushPromises, mount, shallowMount } from '@vue/test-utils'
@@ -6,6 +6,7 @@ import JobApplicationForm from '@/components/form/JobApplicationForm.vue'
 import { nextTick } from 'vue'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useForm } from 'vee-validate'
+import JobApplication from '@/modules/model/jobApplication'
 
 describe('JobApplicationForm test', () => {
   it('if form is empty or not valid then no submit is emmitted when button clicked', () => {
@@ -62,4 +63,35 @@ describe('JobApplicationForm test', () => {
 
   //     expect(emits).toHaveProperty('submit')
   //   })
+
+  it("when a 'jobApplication' is gived then use it to complete form", () => {
+    const application = new JobApplication(
+      'Fake society4',
+      'Fake post4',
+      new Date(Date.now()),
+      false,
+      undefined,
+      '',
+      '4'
+    )
+    const wrapper = mount(JobApplicationForm, { props: { jobApplication: application } })
+
+    expect((wrapper.find('input[name="societyName"]').element as HTMLInputElement).value).toBe(
+      application.societyName
+    )
+    expect((wrapper.find('input[name="jobTitle"]').element as HTMLInputElement).value).toBe(
+      application.jobTitle
+    )
+
+    expect((wrapper.find('input[name="sendDate"]').element as HTMLInputElement).value).toBe(
+      application.sendDate?.toISOString().slice(0, 10)
+    )
+    assert.isEmpty((wrapper.find('input[name="responseDate"]').element as HTMLInputElement).value)
+    expect((wrapper.find('input[name="isAccepted"]').element as HTMLInputElement).checked).toBe(
+      application.positiveReponse
+    )
+    expect((wrapper.find('input[name="offerDetails"]').element as HTMLInputElement).value).toBe(
+      application.applicationLink
+    )
+  })
 })
