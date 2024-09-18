@@ -33,8 +33,11 @@ export default class FireBaseAuthRepository implements IAuthRepository {
 
   async loginWithCred(email: string, password: string): Promise<User | undefined> {
     const cred = await signInWithEmailAndPassword(this.auth, email, password)
-    return (
-      await getDocs(query(usersCollection, where('email', '==', email)))
-    ).docs[0].data() as User
+    return {
+      ...((
+        await getDocs(query(usersCollection, where('email', '==', email)))
+      ).docs[0].data() as User),
+      uid: cred.user.uid
+    }
   }
 }

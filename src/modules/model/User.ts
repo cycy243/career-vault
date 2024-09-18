@@ -4,6 +4,7 @@ export default class User {
     public firstname: string,
     public pseudo: string,
     public email: string,
-    public password: string
+    public password: string,
+    public uid: string | undefined
   ) {}
 }

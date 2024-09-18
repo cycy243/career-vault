@@ -30,7 +30,7 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
       } else {
         application.applicationLink = offerDetails
       }
-      await setDoc(createdDoc, { ...application, applicationId: createdDoc.id, pseudo: uid })
+      await setDoc(createdDoc, { ...application, applicationId: createdDoc.id, userId: uid })
       return { ...application, applicationId: createdDoc.id }
     } catch (error) {
       console.error(error)
@@ -41,7 +41,7 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
   async getApplications(pseudo: string): Promise<Array<JobApplication> | undefined> {
     try {
       const result = Array<JobApplication>(0)
-      const snapshot = await getDocs(query(this.collection, where('pseudo', '==', pseudo)))
+      const snapshot = await getDocs(query(this.collection, where('userId', '==', pseudo)))
 
       snapshot.forEach((doc) => {
         const data = doc.data() as any
