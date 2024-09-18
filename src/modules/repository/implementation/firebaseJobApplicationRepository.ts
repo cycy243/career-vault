@@ -6,6 +6,7 @@ import {
   getDocs,
   query,
   setDoc,
+  updateDoc,
   where,
   type CollectionReference,
   type DocumentData
@@ -69,6 +70,17 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
     } catch (error) {
       console.error(error)
       return false
+    }
+  }
+
+  async updateApplication(application: JobApplication): Promise<JobApplication | undefined> {
+    try {
+      const docFound = doc(this.collection, application.applicationId)
+      await updateDoc(docFound, { ...application })
+      return application
+    } catch (error) {
+      console.error(error)
+      return undefined
     }
   }
 }
