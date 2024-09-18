@@ -28,6 +28,9 @@ interface FormInputProps<T> {
   type: string
 }
 const props = defineProps<FormInputProps<string | Date | null>>()
+watch(props, (newValue) => {
+  internalValue.value = newValue.defaultValue
+})
 
 const emit = defineEmits(['update:modelValue', 'blur'])
 
