@@ -40,7 +40,11 @@
           </td>
           <td>{{ application.positiveReponse ?? '?' }}</td>
           <td><a :href="application.applicationLink" target="_blank">offre's link</a></td>
-          <td><IconDelete @click="onDeleteClicked(application.applicationId)" /></td>
+          <td>
+            <IconDelete @click="onDeleteClicked(application.applicationId)" /><IconEdit
+              @click="onEditClicked(application)"
+            />
+          </td>
         </tr>
       </template>
       <tr v-else class="error-row">
@@ -54,16 +58,12 @@ import type JobApplication from '@/modules/model/jobApplication'
 import { ref } from 'vue'
 import IconSortArrow from '../icons/IconSortArrow.vue'
 import IconDelete from '../icons/IconDelete.vue'
+import IconEdit from '../icons/IconEdit.vue'
 
 interface JobApplicationTableProps {
   jobApplications: Array<JobApplication>
 }
 
-type JobApplicationTableEmits = {
-  (e: 'delete', value: string | undefined): void
-}
-
-const emits = defineEmits<JobApplicationTableEmits>()
 const props = defineProps<JobApplicationTableProps>()
 const applications = ref<Array<JobApplication>>([])
 
@@ -88,8 +88,19 @@ function sort(col: keyof JobApplication) {
   })
 }
 
+type JobApplicationTableEmits = {
+  (e: 'delete', value: string | undefined): void
+  (e: 'update', value: JobApplication): void
+}
+
+const emits = defineEmits<JobApplicationTableEmits>()
+
 function onDeleteClicked(applicationId: string | undefined) {
   emits('delete', applicationId)
+}
+
+function onEditClicked(application: JobApplication) {
+  emits('update', application)
 }
 </script>
 <style lang="css">
