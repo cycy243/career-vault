@@ -88,6 +88,27 @@ type JobApplicationFormProps = {
 }
 
 const props = defineProps<JobApplicationFormProps>()
+watch(
+  () => props.jobApplication,
+  (newValue) => {
+    console.log('watch props')
+    console.log(JSON.stringify(newValue))
+
+    if (newValue) {
+      societyName.value = newValue.societyName
+      sendDate.value = newValue.sendDate
+      responseDate.value = newValue.responseDate
+      offerDetails.value = newValue.applicationLink
+      isAccepted.value = newValue.positiveReponse
+      jobTitle.value = newValue.jobTitle
+    } else {
+      resetForm()
+    }
+  },
+  {
+    deep: false
+  }
+)
 
 const schema = toTypedSchema(
   yup.object({
@@ -100,7 +121,7 @@ const schema = toTypedSchema(
   })
 )
 
-const { defineField, handleSubmit, errors } = useForm({
+const { defineField, handleSubmit, errors, resetForm } = useForm({
   validationSchema: schema
 })
 
@@ -139,11 +160,12 @@ function offerDetailsChange(offerDetails: File | string) {
   applicationFile.value = offerDetails
 }
 
-const [societyName, societyNameAttrs] = defineField('societyName')
-const [jobTitle, jobTitleAttrs] = defineField('jobTitle')
-const [isAccepted, isAcceptedAttrs] = defineField('isAccepted')
-const [sendDate, sendDateAttrs] = defineField('sendDate')
-const [responseDate, responseDateAttrs] = defineField('responseDate')
-const [offerDetails, offerDetailsAttrs] = defineField('offerDetails')
+const validationOptions = { validateOnBlur: true }
+const [societyName, societyNameAttrs] = defineField('societyName', validationOptions)
+const [jobTitle, jobTitleAttrs] = defineField('jobTitle', validationOptions)
+const [isAccepted, isAcceptedAttrs] = defineField('isAccepted', validationOptions)
+const [sendDate, sendDateAttrs] = defineField('sendDate', validationOptions)
+const [responseDate, responseDateAttrs] = defineField('responseDate', validationOptions)
+const [offerDetails, offerDetailsAttrs] = defineField('offerDetails', validationOptions)
 </script>
 <style lang="css"></style>
