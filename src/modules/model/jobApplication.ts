@@ -3,7 +3,7 @@ export default class JobApplication {
     public societyName: string,
     public jobTitle: string,
     public sendDate: Date | undefined,
-    public positiveReponse: Boolean | undefined,
+    public positiveReponse: boolean | undefined,
     public responseDate: Date | undefined,
     public applicationLink?: string,
     public applicationId?: string
@@ -13,7 +13,7 @@ export default class JobApplication {
     societyName: string
     jobTitle: string
     sendDate?: Date
-    positiveReponse?: Boolean
+    positiveReponse?: boolean
     responseDate?: Date
     applicationLink?: string
     applicationId?: string
