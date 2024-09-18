@@ -7,9 +7,13 @@
         <h2>Add an application</h2>
         <IconClose @click="toggleFormDisplay" class="close-icon" />
       </div>
-      <JobApplicationForm class="form" @submit="onSubmit" />
+      <JobApplicationForm class="form" @submit="onSubmit" :job-application="selectedApplication" />
     </div>
-    <JobApplicationTable :job-applications="jobApplications" @delete="onDeleteApplication" />
+    <JobApplicationTable
+      :job-applications="jobApplications"
+      @delete="onDeleteApplication"
+      @update="onUpdate"
+    />
   </main>
 </template>
 <script setup lang="ts">
@@ -28,6 +32,7 @@ const authStore = useAuthStore()
 const showForm = ref(false)
 
 const jobApplications = ref<Array<JobApplication>>([])
+const selectedApplication = ref<JobApplication | undefined>()
 
 const toggleFormDisplay = () => (showForm.value = !showForm.value)
 
@@ -60,6 +65,11 @@ const onDeleteApplication = async (applicationId: string | undefined) => {
   } else {
     console.info('An error occured')
   }
+}
+
+const onUpdate = (application: JobApplication) => {
+  selectedApplication.value = application
+  showForm.value = true
 }
 
 onMounted(async () => {
