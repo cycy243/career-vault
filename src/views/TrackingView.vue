@@ -30,6 +30,7 @@ import type IJobApplicationRepository from '@/modules/repository/IJobApplication
 import { inject, onMounted, ref } from 'vue'
 
 import { useAuthStore } from '@/stores/auth'
+import type IJobApplicationService from '@/modules/services/IJobApplicationService'
 
 const authStore = useAuthStore()
 
@@ -46,16 +47,22 @@ const toggleFormDisplay = () => {
 const jobApplicationRepository = inject<IJobApplicationRepository>(
   'jobApplicationRepository'
 ) as IJobApplicationRepository
+const jobApplicationService = inject<IJobApplicationService>(
+  'jobApplicationService'
+) as IJobApplicationService
 
 const onSubmit = async (values: JobApplication, application: File | string) => {
-  const result = await jobApplicationRepository.addApplication(
-    authStore.authenticatedUser?.uid!,
-    values,
-    application
-  )
+  const result = await jobApplicationService.saveApplication(values, application)
   if (result) {
     showForm.value = false
-    jobApplications.value.push(result)
+    if (values.applicationId) {
+      const previousValueIndex = jobApplications.value.findIndex(
+        (ja: JobApplication) => ja.applicationId === values.applicationId
+      )
+      jobApplications.value[previousValueIndex] = result
+    } else {
+      jobApplications.value.push(result)
+    }
   }
 }
 

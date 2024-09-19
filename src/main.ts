@@ -15,6 +15,8 @@ import FireBaseAuthRepository from './modules/repository/implementation/firebase
 import { useAuthStore } from './stores/auth'
 import type IJobApplicationRepository from './modules/repository/IJobApplicationRepository'
 import FirebaseJobApplicationRepository from './modules/repository/implementation/firebaseJobApplicationRepository'
+import type IJobApplicationService from './modules/services/IJobApplicationService'
+import JobApplicationService from './modules/services/implementation/JobApplicationService'
 
 let app: AppType<Element> | undefined = undefined
 
@@ -33,6 +35,8 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+const jobApplicationRepository = new FirebaseJobApplicationRepository(jobApplicationsCollection)
+
 auth.onAuthStateChanged(() => {
   /**
    * The app will only be initialized if the app is empty
@@ -48,9 +52,10 @@ auth.onAuthStateChanged(() => {
       new FireBaseAuthRepository(usersCollection, auth)
     )
 
-    app.provide<IJobApplicationRepository>(
-      'jobApplicationRepository',
-      new FirebaseJobApplicationRepository(jobApplicationsCollection)
+    app.provide<IJobApplicationRepository>('jobApplicationRepository', jobApplicationRepository)
+    app.provide<IJobApplicationService>(
+      'jobApplicationService',
+      new JobApplicationService(jobApplicationRepository, auth)
     )
 
     app.mount('#app')
