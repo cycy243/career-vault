@@ -46,7 +46,7 @@ export default class FirebaseJobApplicationRepository implements IJobApplication
       snapshot.forEach((doc) => {
         const data = doc.data() as any
         data.applicationId = doc.id
-        data.sendDate = data.responseDate
+        data.sendDate = data.sendDate
           ? new Date(Number.parseInt((data.sendDate as any).seconds) * 1000)
           : undefined
         data.responseDate = data.responseDate
