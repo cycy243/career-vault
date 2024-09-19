@@ -17,6 +17,8 @@ import type IJobApplicationRepository from './modules/repository/IJobApplication
 import FirebaseJobApplicationRepository from './modules/repository/implementation/firebaseJobApplicationRepository'
 import type IJobApplicationService from './modules/services/IJobApplicationService'
 import JobApplicationService from './modules/services/implementation/JobApplicationService'
+import type IExportJobApplication from './modules/services/files/iExportJobApplication'
+import ExportJobApplication from './modules/services/files/implementation/exportJobApplication'
 
 let app: AppType<Element> | undefined = undefined
 
@@ -57,6 +59,8 @@ auth.onAuthStateChanged(() => {
       'jobApplicationService',
       new JobApplicationService(jobApplicationRepository, auth)
     )
+
+    app.provide<IExportJobApplication>('exportJobApplication', new ExportJobApplication())
 
     app.mount('#app')
   }
