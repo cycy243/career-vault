@@ -1,7 +1,10 @@
 <template>
   <main>
     <h1>Your tracking</h1>
-    <button @click="toggleFormDisplay">Add</button>
+    <div>
+      <button @click="toggleFormDisplay">Add</button>
+      <IconToPDF @click="exportToPdf" />
+    </div>
     <div v-show="showForm" class="job-application-form">
       <div class="form-header">
         <h2>Add an application</h2>
@@ -27,10 +30,12 @@ import JobApplicationTable from '@/components/table/JobApplicationTable.vue'
 
 import JobApplication from '@/modules/model/jobApplication'
 import type IJobApplicationRepository from '@/modules/repository/IJobApplicationRepository'
-import { inject, onMounted, ref } from 'vue'
+import { inject, onMounted, provide, ref } from 'vue'
 
 import { useAuthStore } from '@/stores/auth'
 import type IJobApplicationService from '@/modules/services/IJobApplicationService'
+import IconToPDF from '@/components/icons/IconToPDF.vue'
+import type IExportJobApplication from '@/modules/services/files/iExportJobApplication'
 
 const authStore = useAuthStore()
 
@@ -84,6 +89,16 @@ const onDeleteApplication = async (applicationId: string | undefined) => {
 const onUpdate = async (application: JobApplication) => {
   selectedApplication.value = application
   showForm.value = true
+}
+
+const exportJobApplicationService = inject<IExportJobApplication>('exportJobApplication')
+const exportToPdf = async () => {
+  const exportResult = await exportJobApplicationService?.exportToPdf(jobApplications.value)
+  if (exportResult) {
+    console.info('Doc sucessfully exported')
+  } else {
+    console.info('An error exported')
+  }
 }
 
 onMounted(async () => {
