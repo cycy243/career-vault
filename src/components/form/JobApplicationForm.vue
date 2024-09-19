@@ -133,17 +133,15 @@ const applicationFile = ref<File | string>()
 const emit = defineEmits<JobApplicationFormEmits>()
 
 const onSubmit = handleSubmit((values) => {
-  emit(
-    'submit',
-    new JobApplication(
-      values.societyName,
-      values.jobTitle,
-      values.sendDate,
-      values.isAccepted,
-      values.responseDate
-    ),
-    applicationFile.value || ''
+  const submittedApplication = new JobApplication(
+    values.societyName,
+    values.jobTitle,
+    values.sendDate,
+    values.isAccepted,
+    values.responseDate
   )
+  submittedApplication.applicationId = props.jobApplication?.applicationId
+  emit('submit', submittedApplication, applicationFile.value || '')
 })
 
 function offerDetailsFileChanged($event: Event) {
