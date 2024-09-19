@@ -84,6 +84,12 @@ function sort(col: keyof JobApplication) {
     } else if (a[col]! < b[col]!) {
       return isAscending ? -1 : 1
     }
+    if (a[col] === b[col]) {
+      return 0
+    }
+    if (!a[col] || !b[col]) {
+      return -1
+    }
     return 0
   })
 }
