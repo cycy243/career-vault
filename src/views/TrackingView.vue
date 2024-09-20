@@ -36,6 +36,8 @@ import { useAuthStore } from '@/stores/auth'
 import type IJobApplicationService from '@/modules/services/IJobApplicationService'
 import IconToPDF from '@/components/icons/IconToPDF.vue'
 import type IExportJobApplication from '@/modules/services/files/iExportJobApplication'
+import ServiceError from '@/modules/services/errors/serviceError'
+import { toast } from 'vue3-toastify'
 
 const authStore = useAuthStore()
 
@@ -93,11 +95,22 @@ const onUpdate = async (application: JobApplication) => {
 
 const exportJobApplicationService = inject<IExportJobApplication>('exportJobApplication')
 const exportToPdf = async () => {
-  const exportResult = await exportJobApplicationService?.exportToPdf(jobApplications.value)
-  if (exportResult) {
-    console.info('Doc sucessfully exported')
-  } else {
-    console.info('An error exported')
+  try {
+    await exportJobApplicationService?.exportToPdf(jobApplications.value)
+    toast('Doc sucessfully exported', {
+      type: 'success',
+      autoClose: 1000
+    })
+  } catch (error) {
+    if (error instanceof ServiceError) {
+      toast(error.message, {
+        type: 'error'
+      })
+    } else {
+      toast('An unexpected error occured', {
+        type: 'error'
+      })
+    }
   }
 }
 
