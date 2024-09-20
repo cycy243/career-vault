@@ -3,6 +3,11 @@ import type IExportJobApplication from '../iExportJobApplication'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import ServiceError from '../../errors/serviceError'
+import * as FileSaver from 'file-saver'
+import * as XLSX from 'xlsx'
+
+const excelFileExtension = '.xlsx'
+const pdfFileExtension = '.pdf'
 
 export default class ExportJobApplication implements IExportJobApplication {
   exportToPdf(jobApplications: Array<JobApplication>): Promise<boolean> {
@@ -15,7 +20,7 @@ export default class ExportJobApplication implements IExportJobApplication {
       doc.text('Tracking generated on ' + new Date().toDateString(), 10, 20)
       autoTable(doc, {
         head: [headers],
-        body: jobApplications.map(this.convertToArrayForPDF),
+        body: jobApplications.map(this.convertToArray),
         startY: 30
       })
       doc.save('job_tracking_' + new Date().toISOString().slice(0, 10) + '_' + Date.now() + '.pdf')
@@ -25,7 +30,38 @@ export default class ExportJobApplication implements IExportJobApplication {
     }
   }
 
-  convertToArrayForPDF(application: JobApplication): Array<string> {
+  exportToExcel(jobApplications: Array<JobApplication>): Promise<boolean> {
+    try {
+      const tabHeaders = [['Society name', "Job's title", 'Send date', 'Response date']]
+      const fileType =
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+      //Create a new Work Sheet using the data stored in an Array of Arrays.
+      const workSheet = XLSX.utils.aoa_to_sheet(
+        tabHeaders.concat(jobApplications.map(this.convertToArray))
+      )
+      // Generate a Work Book containing the above sheet.
+      const workBook = {
+        Sheets: {
+          data: workSheet,
+          cols: []
+        },
+        SheetNames: ['tracking']
+      }
+      // Exporting the file with the desired name and extension.
+      const excelBuffer = XLSX.write(workBook, { bookType: 'xlsx', type: 'array' })
+      const fileData = new Blob([excelBuffer], { type: fileType })
+      FileSaver.saveAs(fileData, this.generateFileName() + excelFileExtension)
+      return Promise.resolve(true)
+    } catch (error) {
+      throw new ServiceError('An error occured while exporting the PDF')
+    }
+  }
+
+  generateFileName() {
+    return 'job_tracking_' + new Date().toISOString().slice(0, 10) + '_' + Date.now()
+  }
+
+  convertToArray(application: JobApplication): Array<string> {
     const result = new Array<string>()
     result.push(application.societyName)
     result.push(application.jobTitle)
