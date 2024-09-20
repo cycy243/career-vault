@@ -20,3 +20,8 @@ const props = withDefaults(defineProps<IconDeleteProps>(), {
   color: '#000000'
 })
 </script>
+<style lang="css" scoped>
+svg:hover {
+  cursor: pointer;
+}
+</style>
