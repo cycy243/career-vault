@@ -4,7 +4,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import ServiceError from '../../errors/serviceError'
 import * as FileSaver from 'file-saver'
-import * as XLSX from 'xlsx'
+import * as XLSX from 'xlsx-js-style'
 
 const excelFileExtension = '.xlsx'
 const pdfFileExtension = '.pdf'
@@ -35,18 +35,16 @@ export default class ExportJobApplication implements IExportJobApplication {
       const tabHeaders = [['Society name', "Job's title", 'Send date', 'Response date']]
       const fileType =
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+      const workBook = XLSX.utils.book_new()
       //Create a new Work Sheet using the data stored in an Array of Arrays.
       const workSheet = XLSX.utils.aoa_to_sheet(
         tabHeaders.concat(jobApplications.map(this.convertToArray))
       )
-      // Generate a Work Book containing the above sheet.
-      const workBook = {
-        Sheets: {
-          data: workSheet,
-          cols: []
-        },
-        SheetNames: ['tracking']
-      }
+      workSheet['A1'].s = { font: { bold: true } }
+      workSheet['B1'].s = { font: { bold: true } }
+      workSheet['C1'].s = { font: { bold: true } }
+      workSheet['D1'].s = { font: { bold: true } }
+      XLSX.utils.book_append_sheet(workBook, workSheet, 'job tracking')
       // Exporting the file with the desired name and extension.
       const excelBuffer = XLSX.write(workBook, { bookType: 'xlsx', type: 'array' })
       const fileData = new Blob([excelBuffer], { type: fileType })
