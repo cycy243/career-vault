@@ -3,7 +3,8 @@
     <h1>Your tracking</h1>
     <div>
       <button @click="toggleFormDisplay">Add</button>
-      <IconToPDF @click="exportToPdf" />
+      <IconToPDF @click="exportToPdf" title="Export to pdf" />
+      <IconToExcel @click="exportToExcel" title="Export to excel" />
     </div>
     <div v-show="showForm" class="job-application-form">
       <div class="form-header">
@@ -38,6 +39,7 @@ import IconToPDF from '@/components/icons/IconToPDF.vue'
 import type IExportJobApplication from '@/modules/services/files/iExportJobApplication'
 import ServiceError from '@/modules/services/errors/serviceError'
 import { toast } from 'vue3-toastify'
+import IconToExcel from '@/components/icons/IconToExcel.vue'
 
 const authStore = useAuthStore()
 
@@ -97,6 +99,26 @@ const exportJobApplicationService = inject<IExportJobApplication>('exportJobAppl
 const exportToPdf = async () => {
   try {
     await exportJobApplicationService?.exportToPdf(jobApplications.value)
+    toast('Doc sucessfully exported', {
+      type: 'success',
+      autoClose: 1000
+    })
+  } catch (error) {
+    if (error instanceof ServiceError) {
+      toast(error.message, {
+        type: 'error'
+      })
+    } else {
+      toast('An unexpected error occured', {
+        type: 'error'
+      })
+    }
+  }
+}
+
+const exportToExcel = async () => {
+  try {
+    await exportJobApplicationService?.exportToExcel(jobApplications.value)
     toast('Doc sucessfully exported', {
       type: 'success',
       autoClose: 1000
