@@ -19,6 +19,8 @@ import type IJobApplicationService from './modules/services/IJobApplicationServi
 import JobApplicationService from './modules/services/implementation/JobApplicationService'
 import type IExportJobApplication from './modules/services/files/iExportJobApplication'
 import ExportJobApplication from './modules/services/files/implementation/exportJobApplication'
+import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
 let app: AppType<Element> | undefined = undefined
 
@@ -48,6 +50,11 @@ auth.onAuthStateChanged(() => {
 
     app.use(createPinia())
     app.use(router)
+
+    app.use(Vue3Toastify, {
+      autoClose: 3000,
+      theme: 'dark'
+    } as ToastContainerOptions)
 
     app.provide<IAuthRepository>(
       'userAuthReposiroty',
