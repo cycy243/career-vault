@@ -15,7 +15,7 @@ export default class ExportJobApplication implements IExportJobApplication {
       doc.save(new Date().getMilliseconds() + '.pdf')
       return Promise.resolve(true)
     } catch (error) {
-      return Promise.resolve(false)
+      throw new ServiceError('An error occured while exporting the PDF')
     }
   }
 
