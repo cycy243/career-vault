@@ -26,7 +26,6 @@
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
     "vue3-toastify": "^0.2.3",
-    "xlsx": "^0.18.5",
     "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
@@ -47,6 +46,7 @@
     "jsdom": "^24.1.0",
     "npm-run-all2": "^6.2.0",
     "prettier": "^3.2.5",
+    "rollup-plugin-visualizer": "^5.12.0",
     "start-server-and-test": "^2.0.4",
     "typescript": "~5.4.0",
     "vite": "^5.3.1",
