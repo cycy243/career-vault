@@ -27,11 +27,10 @@
 <script setup lang="ts">
 import JobApplicationForm from '@/components/form/JobApplicationForm.vue'
 import IconClose from '@/components/icons/IconClose.vue'
-import JobApplicationTable from '@/components/table/JobApplicationTable.vue'
 
 import JobApplication from '@/modules/model/jobApplication'
 import type IJobApplicationRepository from '@/modules/repository/IJobApplicationRepository'
-import { inject, onMounted, provide, ref } from 'vue'
+import { inject, onMounted, ref, defineAsyncComponent } from 'vue'
 
 import { useAuthStore } from '@/stores/auth'
 import type IJobApplicationService from '@/modules/services/IJobApplicationService'
@@ -40,6 +39,11 @@ import type IExportJobApplication from '@/modules/services/files/iExportJobAppli
 import ServiceError from '@/modules/services/errors/serviceError'
 import { toast } from 'vue3-toastify'
 import IconToExcel from '@/components/icons/IconToExcel.vue'
+
+const JobApplicationTable = defineAsyncComponent({
+  loader: () => import('@/components/table/JobApplicationTable.vue'),
+  loadingComponent: { template: `<h1>LOADING</h1>` }
+})
 
 const authStore = useAuthStore()
 
