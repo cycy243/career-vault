@@ -4,26 +4,31 @@
     <form @submit="onSubmit">
       <fieldset>
         <label for="lastname">Lastname</label>
-        <input type="lastname" v-model="lastname" v-bind="lastnameAttrs" />
+        <input name="lastname" type="text" v-model="lastname" v-bind="lastnameAttrs" />
         <div>{{ errors.lastname }}</div>
         <label for="firstname">Firstname</label>
-        <input type="firstname" v-model="firstname" v-bind="firstnameAttrs" />
+        <input name="firstname" type="text" v-model="firstname" v-bind="firstnameAttrs" />
         <div>{{ errors.firstname }}</div>
       </fieldset>
       <fieldset>
         <label for="pseudo">pseudo</label>
-        <input type="pseudo" v-model="pseudo" v-bind="pseudoAttrs" />
+        <input name="pseudo" type="text" v-model="pseudo" v-bind="pseudoAttrs" />
         <div>{{ errors.pseudo }}</div>
         <label for="email">email</label>
-        <input type="email" v-model="email" v-bind="emailAttrs" />
+        <input name="email" type="text" v-model="email" v-bind="emailAttrs" />
         <div>{{ errors.email }}</div>
       </fieldset>
       <fieldset>
         <label for="password">password</label>
-        <input type="password" v-model="password" v-bind="passwordAttrs" />
+        <input name="password" type="password" v-model="password" v-bind="passwordAttrs" />
         <div>{{ errors.password }}</div>
         <label for="confirmationPwd">confirmationPwd</label>
-        <input type="confirmationPwd" v-model="confirmationPwd" v-bind="confirmationPwdAttrs" />
+        <input
+          name="confirmationPwd"
+          type="password"
+          v-model="confirmationPwd"
+          v-bind="confirmationPwdAttrs"
+        />
         <div>{{ errors.confirmationPwd }}</div>
       </fieldset>
       <button type="submit">Register</button>
