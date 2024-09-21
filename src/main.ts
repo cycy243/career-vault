@@ -22,6 +22,20 @@ import ExportJobApplication from './modules/services/files/implementation/export
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
+if (import.meta.env.MODE !== 'production') {
+  import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
+    import('firebase/auth').then(({ deleteUser }) => {
+      getDocs(query(usersCollection, where('email', '==', 'test@test.com'))).then((users) => {
+        const user = users.docs[0]
+        if (user) {
+          const toDelete = doc(usersCollection, user.id)
+          deleteDoc(toDelete).then(() => deleteUser(auth.currentUser!))
+        }
+      })
+    })
+  })
+}
+
 let app: AppType<Element> | undefined = undefined
 
 router.beforeEach((to, from, next) => {
