@@ -4,10 +4,10 @@
     <form @submit="onSubmit">
       <fieldset>
         <label for="email">email</label>
-        <input type="email" v-model="email" v-bind="emailAttrs" />
+        <input type="email" name="email" v-model="email" v-bind="emailAttrs" />
         <div>{{ errors.email }}</div>
         <label for="password">password</label>
-        <input type="password" v-model="password" v-bind="passwordAttrs" />
+        <input type="password" name="password" v-model="password" v-bind="passwordAttrs" />
         <div>{{ errors.password }}</div>
       </fieldset>
       <button type="submit">Register</button>
