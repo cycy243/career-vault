@@ -24,12 +24,17 @@ import 'vue3-toastify/dist/index.css'
 
 if (import.meta.env.MODE !== 'production') {
   import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
-    import('firebase/auth').then(({ deleteUser }) => {
-      getDocs(query(usersCollection, where('email', '==', 'test@test.com'))).then((users) => {
-        const user = users.docs[0]
-        if (user) {
-          const toDelete = doc(usersCollection, user.id)
-          deleteDoc(toDelete).then(() => deleteUser(auth.currentUser!))
+    import('firebase/auth').then(({ deleteUser, signInWithEmailAndPassword }) => {
+      getDocs(query(usersCollection, where('email', '==', 'test@test.com'))).then(async (users) => {
+        try {
+          await signInWithEmailAndPassword(auth, 'test@test.com', 'Password123$')
+          const user = users.docs[0]
+          if (user) {
+            const toDelete = doc(usersCollection, user.id)
+            deleteDoc(toDelete).then(() => deleteUser(auth.currentUser!))
+          }
+        } catch (error) {
+          console.log(error)
         }
       })
     })
