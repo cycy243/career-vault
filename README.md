@@ -31,9 +31,17 @@ To be able to use firebase here, you'll need to set up a few thing. First, you n
 
 # Possible upgrade
 
+- add translation to the application
+- review login/register forms style
 - add deconnection
 - store user session state inside browser, so if session is valid then relog user in
 - Possibility to add avatar for user
 - possibility to update user profil information like: mail, password, ...
 - add possibility to share the tracking to other via a link (with a code, only person with this link can acces your tracking)
 - add filtering to the tracking
+
+# Hosting application with firebase hosting
+
+- go to your firebase project
+- create an hosting
+- follow the instruction that appears on the screen

@@ -31,3 +31,7 @@ coverage
 .env
 bundle-visualization.html
 cypress.env.json
+.firebaserc
+firebase.json
+.firebase/hosting.ZGlzdA.cache
+.firebase/hosting.ZmlyZWJhc2UtZGlzdA.cache
