@@ -31,9 +31,10 @@ To be able to use firebase here, you'll need to set up a few thing. First, you n
 
 # Possible upgrade
 
+- add possibility of adding "candidature spontanée" (for v-1.0.1)
 - add translation to the application
-- review login/register forms style
-- add deconnection
+- review login/register forms style (for v-1.0.1)
+- add deconnection (for v-1.0.1)
 - store user session state inside browser, so if session is valid then relog user in
 - Possibility to add avatar for user
 - possibility to update user profil information like: mail, password, ...
