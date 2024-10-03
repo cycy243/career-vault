@@ -45,3 +45,11 @@ To be able to use firebase here, you'll need to set up a few thing. First, you n
 - go to your firebase project
 - create an hosting
 - follow the instruction that appears on the screen
+
+## Redeploy
+
+- use the command
+
+```sh
+firebase deploy
+```
