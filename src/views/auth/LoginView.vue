@@ -1,6 +1,7 @@
 <template>
   <main>
     <h1>Login</h1>
+    <div v-if="authError">{{ authError }}</div>
     <form @submit="onSubmit">
       <fieldset>
         <label for="email">Email</label>
@@ -18,19 +19,33 @@
       </fieldset>
       <button type="submit">Sign in</button>
     </form>
+    <button click="loadingClicked">Async loading</button>
   </main>
 </template>
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
-import type IAuthRepository from '@/modules/repository/IAuthRepository'
-import { inject } from 'vue'
+import { watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
+import { useAuth } from '@/hooks/auth'
 
 const authStore = useAuthStore()
+
+const { onLogin, error: authError } = useAuth()
+
+const router = useRouter()
+
+watch(
+  () => authStore.isAuthenticated,
+  () => {
+    if (authStore.isAuthenticated) {
+      router.push({ name: 'tracking' })
+    }
+  }
+)
 
 const schema = toTypedSchema(
   yup.object({
@@ -53,13 +68,8 @@ const [password, passwordAttrs] = defineField('password', {
   validateOnInput: false
 })
 
-const authRepository = inject<IAuthRepository>('userAuthReposiroty') as IAuthRepository
-
-const router = useRouter()
-
 const onSubmit = handleSubmit(async (values) => {
-  authStore.login((await authRepository.loginWithCred(values.email, values.password))!)
-  router.push({ name: 'tracking' })
+  onLogin(values.email, values.password)
 })
 </script>
 <style lang="css" scoped>
