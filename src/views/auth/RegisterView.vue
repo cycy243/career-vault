@@ -5,33 +5,33 @@
       <fieldset>
         <label for="lastname">Lastname</label>
         <input name="lastname" type="text" v-model="lastname" v-bind="lastnameAttrs" />
-        <div>{{ errors.lastname }}</div>
+        <div class="errors-container">{{ errors.lastname }}</div>
         <label for="firstname">Firstname</label>
         <input name="firstname" type="text" v-model="firstname" v-bind="firstnameAttrs" />
-        <div>{{ errors.firstname }}</div>
+        <div class="errors-container">{{ errors.firstname }}</div>
       </fieldset>
       <fieldset>
-        <label for="pseudo">pseudo</label>
+        <label for="pseudo">Pseudo</label>
         <input name="pseudo" type="text" v-model="pseudo" v-bind="pseudoAttrs" />
-        <div>{{ errors.pseudo }}</div>
-        <label for="email">email</label>
+        <div class="errors-container">{{ errors.pseudo }}</div>
+        <label for="email">Email</label>
         <input name="email" type="text" v-model="email" v-bind="emailAttrs" />
-        <div>{{ errors.email }}</div>
+        <div class="errors-container">{{ errors.email }}</div>
       </fieldset>
       <fieldset>
-        <label for="password">password</label>
+        <label for="password">Password</label>
         <input name="password" type="password" v-model="password" v-bind="passwordAttrs" />
-        <div>{{ errors.password }}</div>
-        <label for="confirmationPwd">confirmationPwd</label>
+        <div class="errors-container">{{ errors.password }}</div>
+        <label for="confirmationPwd">Password confirmation</label>
         <input
           name="confirmationPwd"
           type="password"
           v-model="confirmationPwd"
           v-bind="confirmationPwdAttrs"
         />
-        <div>{{ errors.confirmationPwd }}</div>
+        <div class="errors-container">{{ errors.confirmationPwd }}</div>
       </fieldset>
-      <button type="submit">Register</button>
+      <button type="submit">Sign up</button>
     </form>
   </main>
 </template>
@@ -49,12 +49,15 @@ const authStore = useAuthStore()
 
 const schema = toTypedSchema(
   yup.object({
-    email: yup.string().required().email(),
-    password: yup.string().required(),
-    confirmationPwd: yup.string().required(),
-    pseudo: yup.string().required(),
-    lastname: yup.string().required(),
-    firstname: yup.string().required()
+    email: yup
+      .string()
+      .required('You must provide an email')
+      .email('You must provide a valid email'),
+    password: yup.string().required('You must provide a password'),
+    confirmationPwd: yup.string().required('You must confirm your password'),
+    pseudo: yup.string().required('You must provide a pseudo'),
+    lastname: yup.string().required('You must provide a lastname'),
+    firstname: yup.string().required('You must provide a firstname')
   })
 )
 
@@ -84,4 +87,41 @@ const onSubmit = handleSubmit(async (values) => {
   router.push({ name: 'tracking' })
 })
 </script>
-<style lang="css"></style>
+<style lang="css" scoped>
+form {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+label::after {
+  content: ':';
+}
+
+label {
+  width: 75px;
+}
+
+input {
+  width: 200px;
+}
+
+.errors-container {
+  width: 100%;
+  margin-inline-start: 75px;
+  margin-block-end: 0.6rem;
+  color: red;
+  text-align: right;
+}
+
+input[name='password'] {
+  height: 24px;
+}
+</style>
