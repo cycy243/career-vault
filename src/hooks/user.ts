@@ -1,6 +1,6 @@
-import type User from '@/modules/model/User'
+import User from '@/modules/model/User'
 import { usersCollection } from '@/modules/repository/implementation/firebase/firebase'
-import { getDocs, query, where } from 'firebase/firestore'
+import { doc, getDocs, query, setDoc, where } from 'firebase/firestore'
 
 export const useUser = () => {
   const getUserByEmail = async (email: string): Promise<User | null> => {
@@ -14,5 +14,12 @@ export const useUser = () => {
     return null
   }
 
-  return { getUserByEmail }
+  const addUser = async (user: User, userId: string): Promise<User> => {
+    const createdDoc = await doc(usersCollection, userId)
+    const userToAdd = { ...user, uid: userId }
+    await setDoc(createdDoc, userToAdd)
+    return userToAdd
+  }
+
+  return { getUserByEmail, addUser }
 }
