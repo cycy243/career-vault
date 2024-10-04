@@ -26,13 +26,9 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
-import { watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useAuthStore } from '@/stores/auth'
 import { useAuth } from '@/hooks/auth'
-
-const authStore = useAuthStore()
 
 const { onLogin, error: authError } = useAuth()
 
