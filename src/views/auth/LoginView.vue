@@ -38,15 +38,6 @@ const { onLogin, error: authError } = useAuth()
 
 const router = useRouter()
 
-watch(
-  () => authStore.isAuthenticated,
-  () => {
-    if (authStore.isAuthenticated) {
-      router.push({ name: 'tracking' })
-    }
-  }
-)
-
 const schema = toTypedSchema(
   yup.object({
     email: yup
@@ -69,7 +60,9 @@ const [password, passwordAttrs] = defineField('password', {
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  onLogin(values.email, values.password)
+  if (await onLogin(values.email, values.password)) {
+    router.push({ name: 'tracking' })
+  }
 })
 </script>
 <style lang="css" scoped>
