@@ -28,7 +28,7 @@ import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 import { useRouter } from 'vue-router'
 
-import { useAuth } from '@/hooks/auth'
+import { useAuth } from '@/hooks/useAuth'
 
 const { onLogin, error: authError } = useAuth()
 

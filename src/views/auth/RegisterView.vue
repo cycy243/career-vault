@@ -39,13 +39,11 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
-import type IAuthRepository from '@/modules/repository/IAuthRepository'
-import { inject } from 'vue'
 
-import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { useAuth } from '@/hooks/useAuth'
 
-const authStore = useAuthStore()
+const { onRegister } = useAuth()
 
 const schema = toTypedSchema(
   yup.object({
@@ -70,21 +68,19 @@ const [pseudo, pseudoAttrs] = defineField('pseudo')
 const [lastname, lastnameAttrs] = defineField('lastname')
 const [firstname, firstnameAttrs] = defineField('firstname')
 
-const authRepository = inject<IAuthRepository>('userAuthReposiroty') as IAuthRepository
-
 const router = useRouter()
 
 const onSubmit = handleSubmit(async (values) => {
-  authStore.login(
-    (await authRepository.register({
-      email: values.email,
-      pseudo: values.pseudo,
-      password: values.password,
-      firstname: values.firstname,
-      lastname: values.lastname
-    }))!
-  )
-  router.push({ name: 'tracking' })
+  const registerResult = await onRegister({
+    email: values.email,
+    pseudo: values.pseudo,
+    password: values.password,
+    firstname: values.firstname,
+    lastname: values.lastname
+  })
+  if (registerResult) {
+    router.push({ name: 'tracking' })
+  }
 })
 </script>
 <style lang="css" scoped>
