@@ -91,9 +91,6 @@ const props = defineProps<JobApplicationFormProps>()
 watch(
   () => props.jobApplication,
   (newValue) => {
-    console.log('watch props')
-    console.log(JSON.stringify(newValue))
-
     if (newValue) {
       societyName.value = newValue.societyName
       sendDate.value = newValue.sendDate
