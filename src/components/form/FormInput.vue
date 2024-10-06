@@ -1,15 +1,44 @@
 <template>
-  <div class="input_wrapper">
-    <label :for="name">{{ title }}:</label>
-    <input
-      :type="type"
-      :name="name"
-      :id="id || name"
-      :placeholder="placeholder"
-      v-model="internalValue"
-      @input="$emit('update:modelValue', ($event.target as any)?.value)"
-      @blur="$emit('blur')"
-    />
+  <div class="input_wrapper" :class="{ true_false: type === 'true_false' }">
+    <template v-if="type === 'true_false'">
+      <label :for="name">{{ title }}:</label>
+      <div>
+        <label>
+          <input
+            type="radio"
+            :name="name"
+            :id="(id || name) + '_true'"
+            :placeholder="placeholder"
+            :value="true"
+            v-model="internalValue"
+          />
+          Yes
+        </label>
+        <label>
+          <input
+            type="radio"
+            :value="false"
+            :name="name"
+            :id="(id || name) + '_false'"
+            :placeholder="placeholder"
+            v-model="internalValue"
+          />
+          No
+        </label>
+      </div>
+    </template>
+    <template v-else>
+      <label :for="name">{{ title }}:</label>
+      <input
+        :type="type"
+        :name="name"
+        :id="id || name"
+        :placeholder="placeholder"
+        v-model="internalValue"
+        @input="$emit('update:modelValue', ($event.target as any)?.value)"
+        @blur="$emit('blur')"
+      />
+    </template>
     <div v-if="error" class="error_wrapper">
       <p>{{ error }}</p>
     </div>
@@ -48,8 +77,9 @@ watch(internalValue, (newValue: any) => {
 </script>
 <style lang="css" scoped>
 .input_wrapper {
+  width: 20rem;
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 label {
@@ -60,8 +90,16 @@ input {
   width: 12rem;
 }
 
-.error_wrapper p {
-  margin: 0;
-  position: absolute;
+input[type='radio'] {
+  width: initial;
+}
+
+.error_wrapper {
+  width: 100%;
+}
+
+.true_false div {
+  display: flex;
+  flex-direction: column;
 }
 </style>
