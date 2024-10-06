@@ -41,7 +41,7 @@ import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 
 import { useRouter } from 'vue-router'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/composables/useAuth'
 
 const { onRegister } = useAuth()
 
