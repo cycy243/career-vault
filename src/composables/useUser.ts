@@ -1,5 +1,5 @@
 import User from '@/modules/model/User'
-import { usersCollection } from '@/modules/repository/implementation/firebase/firebase'
+import { usersCollection } from '@/modules/configs/firebase'
 import { doc, getDocs, query, setDoc, where } from 'firebase/firestore'
 
 export const useUser = () => {

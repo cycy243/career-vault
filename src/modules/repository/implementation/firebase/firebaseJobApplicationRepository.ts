@@ -1,5 +1,5 @@
 import JobApplication from '@/modules/model/jobApplication'
-import type IJobApplicationRepository from '../IJobApplicationRepository'
+import type IJobApplicationRepository from '../../IJobApplicationRepository'
 import {
   deleteDoc,
   doc,
@@ -11,7 +11,7 @@ import {
   type CollectionReference,
   type DocumentData
 } from 'firebase/firestore'
-import { storage } from './firebase/firebase'
+import { storage } from '../../../configs/firebase'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 
 export default class FirebaseJobApplicationRepository implements IJobApplicationRepository {
