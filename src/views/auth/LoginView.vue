@@ -48,14 +48,8 @@ const schema = toTypedSchema(
 
 const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema })
 
-const [email, emailAttrs] = defineField('email', {
-  validateOnBlur: true,
-  validateOnInput: false
-})
-const [password, passwordAttrs] = defineField('password', {
-  validateOnBlur: true,
-  validateOnInput: false
-})
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
 
 const onSubmit = handleSubmit(async (values) => {
   const result = await loginWithCredentials(values.email, values.password)

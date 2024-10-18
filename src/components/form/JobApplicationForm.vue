@@ -11,6 +11,15 @@
         v-model="societyName"
         v-bind="societyNameAttrs"
       />
+      <FormInput
+        :name="'jobTitle'"
+        title="Job's title"
+        :error="errors.jobTitle"
+        :defaultValue="jobApplication?.jobTitle"
+        :type="'text'"
+        v-model="jobTitle"
+        v-bind="jobTitleAttrs"
+      />
     </fieldset>
     <fieldset>
       <legend>Satus</legend>
@@ -36,52 +45,32 @@
         name="isAccepted"
         title="Is accepted"
         :error="errors.isAccepted"
-        :defaultValue="`${jobApplication?.positiveReponse || false}`"
-        type="true_false"
+        :defaultValue="`${jobApplication?.positiveReponse}`"
+        type="checkbox"
         v-model="isAccepted"
         v-bind="isAcceptedAttrs"
       />
     </fieldset>
     <fieldset>
       <legend>Details</legend>
-      <div class="details_candidature_choose">
-        <FormInput
-          :name="'jobTitle'"
-          title="Spontaneous candidature?"
-          defaultValue="false"
-          type="true_false"
-          v-model="isSpontaneous"
-        />
-      </div>
-      <FormInput
-        :name="'jobTitle'"
-        title="Job's title"
-        :error="errors.jobTitle"
-        :defaultValue="jobApplication?.jobTitle"
-        :type="'text'"
-        v-model="jobTitle"
-        v-bind="jobTitleAttrs"
+      <label for="offerDetails">Offer's details</label>
+      <input
+        name="offerDetails"
+        type="file"
+        v-bind="offerDetailsAttrs"
+        @change.prevent="offerDetailsFileChanged($event)"
       />
-      <div v-show="!isSpontaneous">
-        <label for="offerDetails">Offer's details</label>
-        <input
-          name="offerDetails"
-          type="file"
-          v-bind="offerDetailsAttrs"
-          @change.prevent="offerDetailsFileChanged($event)"
-        />
-        <div>{{ errors.offerDetails }}</div>
-        <FormInput
-          name="offerDetails"
-          title="Offer's details"
-          :error="errors.offerDetails"
-          :defaultValue="jobApplication?.applicationLink"
-          type="text"
-          v-model="offerDetails"
-          v-bind="offerDetailsAttrs"
-          @update:modelValue="(value) => offerDetailsChange(value)"
-        />
-      </div>
+      <div>{{ errors.offerDetails }}</div>
+      <FormInput
+        name="offerDetails"
+        title="Offer's details"
+        :error="errors.offerDetails"
+        :defaultValue="jobApplication?.applicationLink"
+        type="text"
+        v-model="offerDetails"
+        v-bind="offerDetailsAttrs"
+        @update:modelValue="(value) => offerDetailsChange(value)"
+      />
     </fieldset>
     <button type="submit">Add</button>
   </form>
@@ -97,8 +86,6 @@ import { ref, watch } from 'vue'
 type JobApplicationFormProps = {
   jobApplication?: JobApplication
 }
-
-const isSpontaneous = ref(false)
 
 const props = defineProps<JobApplicationFormProps>()
 watch(
@@ -122,24 +109,12 @@ watch(
 
 const schema = toTypedSchema(
   yup.object({
-    societyName: yup.string().required('The name of the society is required'),
-    jobTitle: yup.string().test('jobTitle', 'Job title is required', (value) => {
-      if (!isSpontaneous.value) {
-        return value !== undefined && value?.length !== 0
-      }
-      return true
-    }),
+    societyName: yup.string().required(),
+    jobTitle: yup.string().required(),
     sendDate: yup.date(),
     responseDate: yup.date(),
-    isAccepted: yup.boolean().required('You need to tell use weither is is accepted or not'),
-    offerDetails: yup
-      .mixed()
-      .test('offerDetails', "You must provide the offer's details", (value) => {
-        if (!isSpontaneous.value) {
-          return value !== undefined
-        }
-        return true
-      })
+    isAccepted: yup.boolean().required(),
+    offerDetails: yup.mixed().required()
   })
 )
 
@@ -148,7 +123,7 @@ const { defineField, handleSubmit, errors, resetForm } = useForm({
 })
 
 type JobApplicationFormEmits = {
-  (e: 'submit', value: JobApplication, application: File | string, success: Function): void
+  (e: 'submit', value: JobApplication, application: File | string): void
 }
 const applicationFile = ref<File | string>()
 
@@ -157,13 +132,13 @@ const emit = defineEmits<JobApplicationFormEmits>()
 const onSubmit = handleSubmit((values) => {
   const submittedApplication = new JobApplication(
     values.societyName,
-    values.jobTitle || '',
+    values.jobTitle,
     values.sendDate,
     values.isAccepted,
     values.responseDate
   )
   submittedApplication.applicationId = props.jobApplication?.applicationId
-  emit('submit', submittedApplication, applicationFile.value || '', () => resetForm())
+  emit('submit', submittedApplication, applicationFile.value || '')
 })
 
 function offerDetailsFileChanged($event: Event) {
@@ -188,13 +163,4 @@ const [sendDate, sendDateAttrs] = defineField('sendDate', validationOptions)
 const [responseDate, responseDateAttrs] = defineField('responseDate', validationOptions)
 const [offerDetails, offerDetailsAttrs] = defineField('offerDetails', validationOptions)
 </script>
-<style lang="css" scoped>
-.details_candidature_choose {
-  display: flex;
-  flex-direction: column;
-}
-
-.details_candidature_choose input {
-  margin-inline-end: 15px;
-}
-</style>
+<style lang="css"></style>

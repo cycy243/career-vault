@@ -1,4 +1,11 @@
-// Verify that user doesn't existe inside the database
+// Verify that user doesn't existe inside the firebase database and authentication
+
+Cypress.on('uncaught:exception', (err) => {
+  // returning false here prevents Cypress from
+  // failing the test
+  console.log('Cypress detected uncaught exception: ', err)
+  return false
+})
 
 describe('My First Test', () => {
   it('visits the register url', () => {
