@@ -35,7 +35,7 @@
         :id="id || name"
         :placeholder="placeholder"
         v-model="internalValue"
-        @input="$emit('update:modelValue', ($event.target as any)?.value)"
+        @input="$emit('update:modelValue', internalValue)"
         @blur="$emit('blur')"
       />
     </template>
@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-interface FormInputProps<T> {
+export interface FormInputProps<T> {
   error?: string
   title: string
   name: string
@@ -71,7 +71,6 @@ const internalValue = ref(props.defaultValue)
 
 // Watch for changes in internalValue and emit the 'update:modelValue' event
 watch(internalValue, (newValue: any) => {
-  console.log('internalValue changed: ' + newValue)
   emit('update:modelValue', newValue)
 })
 </script>
