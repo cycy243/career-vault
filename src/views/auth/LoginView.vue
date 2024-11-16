@@ -19,7 +19,6 @@
       </fieldset>
       <button type="submit">Sign in</button>
     </form>
-    <button click="loadingClicked">Async loading</button>
   </main>
 </template>
 <script setup lang="ts">
