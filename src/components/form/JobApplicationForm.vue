@@ -131,7 +131,7 @@
         v-bind="offerDetailsAttrs"
         @update:modelValue="(value) => offerDetailsChange(value)"
       />
-      <div class="errors-wrapper">{{ errors.offerDetails }}</div>
+      <div v-if="errors.offerDetails" class="error_wrapper">{{ errors.offerDetails }}</div>
     </fieldset>
     <!-- To decomment later because this is for adding "proof" -->
     <!-- <fieldset>

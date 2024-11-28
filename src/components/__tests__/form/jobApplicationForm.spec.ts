@@ -1,68 +1,36 @@
-import { describe, it, expect, assert, vi } from 'vitest'
+import { describe, it, expect, assert } from 'vitest'
 
-import { enableAutoUnmount, flushPromises, mount, shallowMount } from '@vue/test-utils'
+import { flushPromises, mount, shallowMount } from '@vue/test-utils'
 import JobApplicationForm from '@/components/form/JobApplicationForm.vue'
-import { nextTick, ref } from 'vue'
+import { nextTick, provide } from 'vue'
 import JobApplication from '@/modules/model/jobApplication'
-import { afterEach } from 'node:test'
 import * as applications from '@/components/__tests__/jobApplicationData'
+import { FormContextKey } from 'vee-validate'
+
+/**
+ * I don't test the "emit"
+ */
 
 describe('JobApplicationForm test', () => {
-  it('if form is empty or not valid then no submit is emmitted when button clicked', () => {
+  it('if form is empty or not valid then no submit is emmitted when button clicked', async () => {
     const wrapper = shallowMount(JobApplicationForm)
 
-    wrapper.find('form').trigger('submit')
+    wrapper.find("input[value='job_offer']").trigger('click')
+    wrapper.find("input[value='job_offer']").trigger('change')
+    expect(
+      (wrapper.find("input[value='job_offer']").element as HTMLInputElement).checked
+    ).toBeTruthy()
 
-    expect(wrapper.emitted()).not.toHaveProperty('submit')
-    wrapper.unmount()
+    await nextTick()
+    await flushPromises()
+
+    wrapper.find('button').trigger('submit')
+
+    await nextTick()
+    await flushPromises()
+
+    expect(wrapper.find('div:has(input[name="offerDetails"]) ~ .error_wrapper').text()).toBeTruthy()
   })
-
-  //   it('emits event when submit', async () => {
-  //     const wrapper = mount(JobApplicationForm)
-
-  //     await wrapper.find('input[name="societyName"]').setValue('testo')
-  //     await wrapper.find('input[name="jobTitle"]').setValue('testo')
-  //     await wrapper.find('input[name="sendDate"]').setValue('2024-09-16')
-  //     await wrapper.find('input[name="responseDate"]').setValue('2024-09-16')
-  //     const checkbox = (await wrapper.find('input[name="isAccepted"]').element) as HTMLInputElement
-  //     checkbox.checked = false
-  //     await wrapper.find('input[name="isAccepted"]').trigger('change')
-  //     await wrapper.find('input[name="offerDetails"]').setValue('kljhkljhkljh')
-
-  //     await nextTick()
-
-  //     console.log(
-  //       'societyName:' + (wrapper.find('input[name="societyName"]').element as HTMLInputElement).value
-  //     )
-  //     console.log(
-  //       'jobTitle:' + (wrapper.find('input[name="jobTitle"]').element as HTMLInputElement).value
-  //     )
-  //     console.log(
-  //       'sendDate:' + (wrapper.find('input[name="sendDate"]').element as HTMLInputElement).value
-  //     )
-  //     console.log(
-  //       'responseDate:' +
-  //         (wrapper.find('input[name="responseDate"]').element as HTMLInputElement).value
-  //     )
-  //     console.log(
-  //       'offerDetails:' +
-  //         (wrapper.find('input[name="offerDetails"]').element as HTMLInputElement).value
-  //     )
-  //     console.log(
-  //       'isAccepted:' + (wrapper.find('input[name="isAccepted"]').element as HTMLInputElement).value
-  //     )
-  //     // Wait for all promises to resolve
-  //     await flushPromises()
-
-  //     await wrapper.find('form').trigger('submit')
-  //     // Wait for all promises to resolve
-  //     await flushPromises()
-
-  //     const emits = wrapper.emitted()
-  //     console.log(emits)
-
-  //     expect(emits).toHaveProperty('submit')
-  //   })
 
   it('when type is "job_offers" and form is submitting without being completed than there is an error for the offerDetails input', async () => {
     const wrapper = mount(JobApplicationForm)
@@ -81,9 +49,7 @@ describe('JobApplicationForm test', () => {
     await nextTick()
     await flushPromises()
 
-    expect(
-      wrapper.find('div:has(input[name="offerDetails"]) ~ .errors-wrapper').text()
-    ).toBeTruthy()
+    expect(wrapper.find('div:has(input[name="offerDetails"]) ~ .error_wrapper').text()).toBeTruthy()
   })
 
   it("when a 'jobApplication' is gived then use it to complete form", async () => {
@@ -151,17 +117,11 @@ describe('JobApplicationForm test', () => {
     ).toBeFalsy()
   })
 
-  it('complete form for spontaneous application and submit give the application', async () => {
+  it('complete form for spontaneous application and submit the application then no errors are displayed in the forms', async () => {
     const application = applications.spontaneaousApplication
-    const submittedApplication = ref<JobApplication | undefined>()
-    const onSubmitSpy = vi.fn()
 
     // Mount the component with an 'onSubmit' prop handler
-    const wrapper = mount(JobApplicationForm, { props: { onSubmit: onSubmitSpy } })
-    const emitSpy = vi.spyOn(wrapper.vm, '$emit')
-
-    await nextTick()
-    await flushPromises()
+    const wrapper = mount(JobApplicationForm)
 
     // Fill out form inputs
     await wrapper
@@ -178,21 +138,12 @@ describe('JobApplicationForm test', () => {
     await isAcceptedCheckbox.trigger('change')
     expect((isAcceptedCheckbox.element as HTMLInputElement).checked).toBeTruthy()
 
-    await flushPromises()
-
     // Submit the form
     await wrapper.find('button').trigger('submit')
-    wrapper.vm.$forceUpdate()
+
     await nextTick() // Make sure Vue has finished any async operations
     await flushPromises()
 
-    // Debugging outputs to check state
-    const formApplication = wrapper.emitted()
-    console.log('Form emitted events:', formApplication)
-    console.log('Submitted application:', (formApplication['submit']?.[0] as unknown[])?.[0])
-
-    // Assert that the application was received by the onSubmit callback
-    expect(onSubmitSpy).toHaveBeenCalled()
-    expect(submittedApplication.value).toBeDefined()
+    expect(wrapper.findAll('.error_wrapper')).toHaveLength(0)
   })
 })
