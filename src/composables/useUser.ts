@@ -17,6 +17,7 @@ export const useUser = () => {
   const addUser = async (user: User, userId: string): Promise<User> => {
     const createdDoc = await doc(usersCollection, userId)
     const userToAdd = { ...user, uid: userId }
+    delete (userToAdd as { password?: string }).password
     await setDoc(createdDoc, userToAdd)
     return userToAdd
   }

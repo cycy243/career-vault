@@ -37,8 +37,8 @@ export const useAuth = () => {
   const onRegister = async (user: User) => {
     try {
       const userCred = await createUserWithEmailAndPassword(auth, user.email, user.password)
-      login(await addUser(user, userCred.user.uid))
-      return true
+      await addUser(user, userCred.user.uid)
+      return onLogin(user.email, user.password)
     } catch (err) {
       if ((err as any)?.name === 'FirebaseError') {
         error.value = 'An error occured with an external service'
