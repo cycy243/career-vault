@@ -19,7 +19,7 @@
         :title="'Company name'"
         :error="errors.societyName"
         :type="'text'"
-        :defaultValue="jobApplication?.societyName"
+        :defaultValue="jobApplication?.companyInformation.societyName"
         v-model="societyName"
         v-bind="societyNameAttrs"
       />
@@ -28,7 +28,7 @@
         :title="'Company website'"
         :error="errors.societyWebsite"
         :type="'text'"
-        :defaultValue="jobApplication?.societyWebsite"
+        :defaultValue="jobApplication?.companyInformation.societyWebsite"
         v-model="societyWebsite"
         v-bind="societyWebsiteAttrs"
       />
@@ -46,33 +46,57 @@
     </fieldset>
     <fieldset>
       <legend>Contact</legend>
-      <FormInput
-        :name="'contactName'"
-        :title="'Name'"
-        :error="errors.contactName"
-        :type="'text'"
-        :defaultValue="jobApplication?.contactInformation?.name"
-        v-model="contactName"
-        v-bind="contactNameAttrs"
+      <FormInputSelect
+        inputLabel="How did you apply?"
+        inputName="apply-method"
+        :options="[
+          { name: 'email', value: 'By email' },
+          { name: 'website', value: 'With a website' },
+          { name: 'linkedin', value: 'Via LinkedIn' }
+        ]"
+        v-model="applyMethod"
+        v-bind="applyMethodAttrs"
       />
-      <FormInput
-        :name="'contactEmail'"
-        :title="'Email'"
-        :error="errors.contactEmail"
-        :type="'email'"
-        :defaultValue="jobApplication?.contactInformation?.mail"
-        v-model="contactEmail"
-        v-bind="contactEmailAttrs"
-      />
-      <FormInput
-        :name="'contactFunction'"
-        :title="'Function'"
-        :error="errors.contactFunction"
-        :type="'text'"
-        :defaultValue="jobApplication?.contactInformation?.function"
-        v-model="contactFunction"
-        v-bind="contactFunctionAttrs"
-      />
+      <template v-if="applyMethod === 'website'">
+        <FormInput
+          :name="'applyWebSite'"
+          :title="'Website'"
+          :error="errors.applyWebSite"
+          :type="'text'"
+          :defaultValue="jobApplication?.contactInformation?.name"
+          v-model="applyWebSite"
+          v-bind="applyWebSiteAttrs"
+        />
+      </template>
+      <template v-if="applyMethod === 'email'">
+        <FormInput
+          :name="'contactName'"
+          :title="'Name'"
+          :error="errors.contactName"
+          :type="'text'"
+          :defaultValue="jobApplication?.contactInformation?.name"
+          v-model="contactName"
+          v-bind="contactNameAttrs"
+        />
+        <FormInput
+          :name="'contactEmail'"
+          :title="'Email'"
+          :error="errors.contactEmail"
+          :type="'email'"
+          :defaultValue="jobApplication?.contactInformation?.mail"
+          v-model="contactEmail"
+          v-bind="contactEmailAttrs"
+        />
+        <FormInput
+          :name="'contactFunction'"
+          :title="'Function'"
+          :error="errors.contactFunction"
+          :type="'text'"
+          :defaultValue="jobApplication?.contactInformation?.function"
+          v-model="contactFunction"
+          v-bind="contactFunctionAttrs"
+        />
+      </template>
     </fieldset>
     <fieldset>
       <legend>Satus</legend>
@@ -152,53 +176,60 @@
   </form>
 </template>
 <script setup lang="ts">
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/yup'
-import * as yup from 'yup'
-import FormInput from './FormInput.vue'
-import JobApplication from '@/modules/model/jobApplication'
-import { ref, watch } from 'vue'
-import FormGroupInputRadio from './FormGroupInputRadio.vue'
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/yup';
+import * as yup from 'yup';
+import FormInput from './FormInput.vue';
+import JobApplication from '@/modules/model/jobApplication';
+import { ref, watch } from 'vue';
+import FormGroupInputRadio from './FormGroupInputRadio.vue';
+import FormInputSelect from './FormInputSelect.vue';
 
 type JobApplicationFormProps = {
-  jobApplication?: JobApplication
-}
+  jobApplication?: JobApplication;
+};
 
-const props = defineProps<JobApplicationFormProps>()
+const props = defineProps<JobApplicationFormProps>();
 watch(
   () => props.jobApplication,
   (newValue) => {
     if (newValue) {
-      societyName.value = newValue.societyName
-      sendDate.value = newValue.sendDate
-      responseDate.value = newValue.responseDate
-      offerDetails.value = newValue.applicationLink
-      isAccepted.value = newValue.positiveReponse
-      jobTitle.value = newValue.jobTitle
+      societyName.value = newValue.companyInformation.societyName;
+      sendDate.value = newValue.sendDate;
+      responseDate.value = newValue.responseDate;
+      offerDetails.value = newValue.applicationLink;
+      isAccepted.value = newValue.positiveReponse;
+      jobTitle.value = newValue.jobTitle;
     } else {
-      resetForm()
+      resetForm();
     }
   },
   {
     deep: false
   }
-)
+);
 
 const schema = toTypedSchema(
   yup.object({
     societyName: yup.string().required("The company's name is required"),
     contactName: yup.string(),
+    applyMethod: yup.string(),
     contactEmail: yup
       .string()
       .email('The email should be a valid email')
-      .when('applicationType', {
-        is: (applicationType: string) => isSpontaneousApplication(applicationType),
+      .when(['applicationType', 'applyMethod'], {
+        is: (applicationType: string, applyMethod: string) =>
+          isSpontaneousApplication(applicationType) && applyMethod === 'email',
         then: () =>
           yup
             .string()
             .email('The email should be a valid email')
             .required('You should provide the email you use to submit your application')
       }),
+    applyWebSite: yup.string().when('applyMethod', {
+      is: (applyMethod: string) => applyMethod === 'website',
+      then: () => yup.string().url().required()
+    }),
     contactFunction: yup.string(),
     societyWebsite: yup.string().url("The website's url should be a valid url"),
     jobTitle: yup.string().when('applicationType', {
@@ -215,83 +246,81 @@ const schema = toTypedSchema(
       then: () => yup.mixed().required("You have to provide the offer's details")
     })
   })
-)
+);
 
-const isSpontaneousApplication = (applicationType: string) => applicationType !== 'job_offer'
+const isSpontaneousApplication = (applicationType: string) => applicationType !== 'job_offer';
 
 const { defineField, handleSubmit, errors, resetForm } = useForm({
   initialValues: {
-    applicationType: 'spontaneous'
+    applicationType: 'spontaneous',
+    applyMethod: 'email'
   },
   validationSchema: schema
-})
+});
 
 type JobApplicationFormEmits = {
-  (e: 'submit', value: JobApplication, application: File | string): void
-  (e: 'new-application', value: JobApplication, application: File | string): void
-}
-const applicationFile = ref<File | string>()
-const otherFiles = ref<Array<File>>([])
+  (e: 'submit', value: JobApplication, application: File | string): void;
+  (e: 'new-application', value: JobApplication, application: File | string): void;
+};
+const applicationFile = ref<File | string>();
+const otherFiles = ref<Array<File>>([]);
 
-const emit = defineEmits<JobApplicationFormEmits>()
+const emit = defineEmits<JobApplicationFormEmits>();
 
 const onSubmit = handleSubmit(
   (values) => {
-    const submittedApplication = new JobApplication(
-      values.societyName,
-      values.societyWebsite,
-      values.jobTitle,
-      values.sendDate,
-      values.interviewDate,
-      values.isAccepted,
-      values.responseDate
-    )
+    const submittedApplication = JobApplication.createJobApplication({
+      ...values,
+      positiveReponse: values.isAccepted
+    });
 
-    submittedApplication.applicationId = props.jobApplication?.applicationId
-    console.log('chch')
+    submittedApplication.applicationId = props.jobApplication?.applicationId;
+    console.log('chch');
 
-    emit('submit', submittedApplication, applicationFile.value || '')
+    emit('submit', submittedApplication, applicationFile.value || '');
   },
   ({ errors }) => {
-    console.log(errors)
+    console.log(errors);
   }
-)
+);
 
 function offerDetailsFileChanged($event: Event) {
   // eslint-disable-next-line no-unsafe-optional-chaining
-  const event = $event as InputEvent
+  const event = $event as InputEvent;
   const files = event.dataTransfer
     ? [...event.dataTransfer.files]
-    : [...((event.target as any)?.files as FileList)]
-  offerDetails.value = files[0]
-  offerDetailsChange(files[0])
+    : [...((event.target as any)?.files as FileList)];
+  offerDetails.value = files[0];
+  offerDetailsChange(files[0]);
 }
 
 function onNewDocumentAdded($event: Event) {
   // eslint-disable-next-line no-unsafe-optional-chaining
-  const event = $event as InputEvent
+  const event = $event as InputEvent;
   const files = event.dataTransfer
     ? [...event.dataTransfer.files]
-    : [...((event.target as any)?.files as FileList)]
-  otherFiles.value = [...otherFiles.value, ...files]
+    : [...((event.target as any)?.files as FileList)];
+  otherFiles.value = [...otherFiles.value, ...files];
 }
 
 function offerDetailsChange(offerDetails: File | string) {
-  applicationFile.value = offerDetails
+  applicationFile.value = offerDetails;
 }
 
-const validationOptions = { validateOnBlur: true }
-const [societyName, societyNameAttrs] = defineField('societyName', validationOptions)
-const [jobTitle, jobTitleAttrs] = defineField('jobTitle', validationOptions)
-const [isAccepted, isAcceptedAttrs] = defineField('isAccepted', validationOptions)
-const [sendDate, sendDateAttrs] = defineField('sendDate', validationOptions)
-const [responseDate, responseDateAttrs] = defineField('responseDate', validationOptions)
-const [offerDetails, offerDetailsAttrs] = defineField('offerDetails', validationOptions)
-const [applicationType, applicationTypeAttrs] = defineField('applicationType', validationOptions)
-const [interviewDate, interviewDateAttrs] = defineField('interviewDate', validationOptions)
-const [societyWebsite, societyWebsiteAttrs] = defineField('societyWebsite', validationOptions)
-const [contactEmail, contactEmailAttrs] = defineField('contactEmail', validationOptions)
-const [contactFunction, contactFunctionAttrs] = defineField('contactFunction', validationOptions)
-const [contactName, contactNameAttrs] = defineField('contactName', validationOptions)
+const validationOptions = { validateOnBlur: true };
+const [societyName, societyNameAttrs] = defineField('societyName', validationOptions);
+const [jobTitle, jobTitleAttrs] = defineField('jobTitle', validationOptions);
+const [isAccepted, isAcceptedAttrs] = defineField('isAccepted', validationOptions);
+const [sendDate, sendDateAttrs] = defineField('sendDate', validationOptions);
+const [responseDate, responseDateAttrs] = defineField('responseDate', validationOptions);
+const [offerDetails, offerDetailsAttrs] = defineField('offerDetails', validationOptions);
+const [applicationType, applicationTypeAttrs] = defineField('applicationType', validationOptions);
+const [interviewDate, interviewDateAttrs] = defineField('interviewDate', validationOptions);
+const [societyWebsite, societyWebsiteAttrs] = defineField('societyWebsite', validationOptions);
+const [contactEmail, contactEmailAttrs] = defineField('contactEmail', validationOptions);
+const [contactFunction, contactFunctionAttrs] = defineField('contactFunction', validationOptions);
+const [contactName, contactNameAttrs] = defineField('contactName', validationOptions);
+const [applyMethod, applyMethodAttrs] = defineField('applyMethod', validationOptions);
+const [applyWebSite, applyWebSiteAttrs] = defineField('applyWebSite', validationOptions);
 </script>
 <style lang="css"></style>
