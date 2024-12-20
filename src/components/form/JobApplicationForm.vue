@@ -189,6 +189,9 @@ type JobApplicationFormProps = {
   jobApplication?: JobApplication;
 };
 
+// TODO: Handle spontaneous application from mail with only mail and with all information
+// TODO: Handle application on linkedin
+
 const props = defineProps<JobApplicationFormProps>();
 watch(
   () => props.jobApplication,
@@ -196,10 +199,15 @@ watch(
     if (newValue) {
       societyName.value = newValue.companyInformation.societyName;
       sendDate.value = newValue.sendDate;
+      interviewDate.value = newValue.interviewDate;
       responseDate.value = newValue.responseDate;
       offerDetails.value = newValue.applicationLink;
       isAccepted.value = newValue.positiveReponse;
       jobTitle.value = newValue.jobTitle;
+      societyWebsite.value = newValue.companyInformation.societyWebsite;
+      contactEmail.value = newValue.contactInformation?.mail;
+      contactName.value = newValue.contactInformation?.name;
+      contactFunction.value = newValue.contactInformation?.function;
     } else {
       resetForm();
     }
@@ -271,13 +279,15 @@ const onSubmit = handleSubmit(
   (values) => {
     const submittedApplication = JobApplication.createJobApplication({
       ...values,
-      positiveReponse: values.isAccepted
+      positiveReponse: values.isAccepted,
+      applicationMethod: values.applyMethod as 'email' | 'website' | 'linkedin' | undefined,
+      contactMail: values.contactEmail
     });
 
     submittedApplication.applicationId = props.jobApplication?.applicationId;
-    console.log('chch');
 
     emit('submit', submittedApplication, applicationFile.value || '');
+    resetForm();
   },
   ({ errors }) => {
     console.log(errors);

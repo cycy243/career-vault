@@ -45,7 +45,8 @@ export default class JobApplication {
       object.applicationMethod,
       object.webSiteApply
     );
-
+    // eslint-disable-next-line no-debugger
+    debugger;
     application.companyInformation = {
       societyName: object.societyName ?? '',
       societyWebsite: object.societyWebsite ?? ''
