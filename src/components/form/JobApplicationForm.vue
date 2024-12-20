@@ -208,6 +208,7 @@ watch(
       contactEmail.value = newValue.contactInformation?.mail;
       contactName.value = newValue.contactInformation?.name;
       contactFunction.value = newValue.contactInformation?.function;
+      offerDetails.value = newValue.applicationLink;
     } else {
       resetForm();
     }
