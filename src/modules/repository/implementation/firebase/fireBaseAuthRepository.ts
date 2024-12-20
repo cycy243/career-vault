@@ -14,7 +14,7 @@ import {
   signInWithEmailAndPassword,
   type Auth
 } from 'firebase/auth'
-import { usersCollection } from './firebase'
+import { usersCollection } from '../../../configs/firebase'
 
 export default class FireBaseAuthRepository implements IAuthRepository {
   constructor(

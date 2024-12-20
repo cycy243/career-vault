@@ -1,7 +1,7 @@
 <template>
   <main>
     <h1>Login</h1>
-    <div v-if="authError">{{ authError }}</div>
+    <div v-if="errorMessage">{{ errorMessage }}</div>
     <form @submit="onSubmit">
       <fieldset>
         <label for="email">Email</label>
@@ -19,7 +19,6 @@
       </fieldset>
       <button type="submit">Sign in</button>
     </form>
-    <button click="loadingClicked">Async loading</button>
   </main>
 </template>
 <script setup lang="ts">
@@ -28,9 +27,11 @@ import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 import { useRouter } from 'vue-router'
 
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth'
+import { ref } from 'vue'
 
-const { onLogin, error: authError } = useAuth()
+const { loginWithCredentials } = useAuthStore()
+const errorMessage = ref<string>()
 
 const router = useRouter()
 
@@ -46,18 +47,16 @@ const schema = toTypedSchema(
 
 const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema })
 
-const [email, emailAttrs] = defineField('email', {
-  validateOnBlur: true,
-  validateOnInput: false
-})
-const [password, passwordAttrs] = defineField('password', {
-  validateOnBlur: true,
-  validateOnInput: false
-})
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
 
 const onSubmit = handleSubmit(async (values) => {
-  if (await onLogin(values.email, values.password)) {
+  const result = await loginWithCredentials(values.email, values.password)
+  if (!result) {
+    errorMessage.value = undefined
     router.push({ name: 'tracking' })
+  } else {
+    errorMessage.value = result
   }
 })
 </script>

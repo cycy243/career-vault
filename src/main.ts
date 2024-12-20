@@ -5,16 +5,12 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-import {
-  auth,
-  jobApplicationsCollection,
-  usersCollection
-} from './modules/repository/implementation/firebase/firebase'
+import { auth, jobApplicationsCollection, usersCollection } from './modules/configs/firebase'
 import type IAuthRepository from './modules/repository/IAuthRepository'
 import FireBaseAuthRepository from './modules/repository/implementation/firebase/fireBaseAuthRepository'
 import { useAuthStore } from './stores/auth'
 import type IJobApplicationRepository from './modules/repository/IJobApplicationRepository'
-import FirebaseJobApplicationRepository from './modules/repository/implementation/firebaseJobApplicationRepository'
+import FirebaseJobApplicationRepository from './modules/repository/implementation/firebase/firebaseJobApplicationRepository'
 import type IJobApplicationService from './modules/services/IJobApplicationService'
 import JobApplicationService from './modules/services/implementation/JobApplicationService'
 import type IExportJobApplication from './modules/services/files/iExportJobApplication'

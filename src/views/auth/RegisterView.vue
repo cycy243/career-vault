@@ -1,6 +1,7 @@
 <template>
   <main>
     <h1>Register</h1>
+    <p v-if="errorMessage">{{ errorMessage }}</p>
     <form @submit="onSubmit">
       <fieldset>
         <label for="lastname">Lastname</label>
@@ -39,11 +40,13 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
+import { ref } from 'vue'
 
 import { useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth'
 
-const { onRegister } = useAuth()
+const { register } = useAuthStore()
+const errorMessage = ref<string>()
 
 const schema = toTypedSchema(
   yup.object({
@@ -71,15 +74,18 @@ const [firstname, firstnameAttrs] = defineField('firstname')
 const router = useRouter()
 
 const onSubmit = handleSubmit(async (values) => {
-  const registerResult = await onRegister({
+  const registerResult = await register({
     email: values.email,
     pseudo: values.pseudo,
     password: values.password,
     firstname: values.firstname,
     lastname: values.lastname
   })
-  if (registerResult) {
+  if (!registerResult) {
+    errorMessage.value = undefined
     router.push({ name: 'tracking' })
+  } else {
+    errorMessage.value = registerResult
   }
 })
 </script>

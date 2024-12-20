@@ -2,7 +2,7 @@ import { describe, expect, it, vi, type Mocked } from 'vitest'
 
 import { useUser } from '../useUser'
 import User from '../../modules/model/User'
-import { collection, getDocs, getFirestore } from 'firebase/firestore'
+import { getDocs } from 'firebase/firestore'
 
 vi.mock('../../src/modules/repository/implementation/firebase/firebase', () => {
   return {
