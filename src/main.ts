@@ -19,7 +19,7 @@ import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { useUser } from './composables/useUser';
 
-if (import.meta.env.MODE !== 'production') {
+if (import.meta.env.MODE === 'test') {
   import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
     import('firebase/auth').then(({ deleteUser, signInWithEmailAndPassword }) => {
       getDocs(query(usersCollection, where('email', '==', 'test@test.com'))).then(async (users) => {
@@ -86,13 +86,14 @@ auth.onAuthStateChanged(async (authenticatedUser) => {
     app.provide<IExportJobApplication>('exportJobApplication', new ExportJobApplication());
 
     app.mount('#app');
+  }
 
-    if (authenticatedUser) {
-      const { getUserByEmail } = useUser();
-      const authStore = useAuthStore();
-      const user = await getUserByEmail(authenticatedUser.email!);
-      if (user) authStore.authenticatedUser = user;
-      router.push('/tracking');
-    }
+  const authStore = useAuthStore();
+
+  if (authenticatedUser) {
+    const { getUserByEmail } = useUser();
+    const user = await getUserByEmail(authenticatedUser.email!);
+    if (user) authStore.authenticatedUser = user;
+    console.log('éUser logged in');
   }
 });

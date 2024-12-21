@@ -10,7 +10,7 @@
     "test:unit": "vitest",
     "test:unit:ui": "vitest --ui",
     "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
-    "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
+    "test:e2e:dev": "start-server-and-test 'vite dev --port 4173 --mode test' http://localhost:4173 'cypress open --e2e'",
     "deploy:firebase": "npm run build && firebase deploy",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@vee-validate/yup": "^4.13.2",
     "file-saver": "^2.0.5",
-    "firebase": "^10.13.1",
+    "firebase": "^10.14.1",
     "flush-promises": "^1.0.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.3",
