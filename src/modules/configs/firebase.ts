@@ -1,12 +1,10 @@
-import { useAuthStore } from '@/stores/auth';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
 import { collection, getFirestore, initializeFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import { useUser } from '@/composables/useUser';
 
 // Initialize Firebase
 const app = initializeApp({

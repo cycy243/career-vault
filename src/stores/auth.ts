@@ -1,14 +1,13 @@
-import { ref, computed, reactive } from 'vue';
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import User from '@/modules/model/User';
 import { auth } from '@/modules/configs/firebase';
 import {
   browserLocalPersistence,
-  browserSessionPersistence,
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
   setPersistence,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  signOut
 } from 'firebase/auth';
 import { useUser } from '@/composables/useUser';
 
@@ -18,8 +17,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   const { getUserByEmail, addUser } = useUser();
 
-  function logout() {
+  async function logout() {
     authenticatedUser.value = undefined;
+    await signOut(auth);
   }
 
   async function loginWithCredentials(
@@ -28,12 +28,10 @@ export const useAuthStore = defineStore('auth', () => {
   ): Promise<string | undefined> {
     return setPersistence(auth, browserLocalPersistence)
       .then(async () => {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         const user = await getUserByEmail(email);
         if (user) {
           authenticatedUser.value = user;
-          console.log('Login user: ' + JSON.stringify(authenticatedUser.value));
-
           return undefined;
         }
         return 'The user should connect but no data found for it';
