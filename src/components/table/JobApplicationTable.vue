@@ -32,7 +32,7 @@
     <tbody>
       <template v-if="jobApplications.length > 0">
         <tr v-for="(application, index) in jobApplications" :key="index">
-          <td>{{ application.companyInformation.societyName }}</td>
+          <td>{{ application.companyInformation?.societyName }}</td>
           <td>
             {{ application.isSpontaneous ? 'Spontaneous application' : application.jobTitle }}
           </td>
