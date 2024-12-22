@@ -4,7 +4,7 @@ import { storage, jobApplicationsCollection } from '../modules/configs/firebase'
 import { getDownloadURL, ref as firebaseRef, uploadBytes } from 'firebase/storage';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useJobApplication = () => {
   const jobApplications = ref<Array<JobApplication>>([]);
@@ -23,10 +23,7 @@ export const useJobApplication = () => {
     try {
       const createdDoc = await doc(jobApplicationsCollection);
       if (offerDetails instanceof File) {
-        const storageRef = firebaseRef(
-          storage,
-          `offer-details/${randomUUID()}-${offerDetails.name}`
-        ); // With this we'll be able to access the root directory of our storage
+        const storageRef = firebaseRef(storage, `offer-details/${uuidv4()}-${offerDetails.name}`); // With this we'll be able to access the root directory of our storage
         console.log(storageRef.fullPath);
 
         const songRef = await uploadBytes(storageRef, offerDetails); // This will tell firebase where to store the file and that the songs directory is the child of the root directory
