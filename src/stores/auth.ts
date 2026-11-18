@@ -1,10 +1,11 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { defineStore } from 'pinia';
 import User from '@/modules/model/User';
 import { auth } from '@/modules/configs/firebase';
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
   setPersistence,
   signInWithEmailAndPassword,
   signOut
@@ -16,6 +17,16 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => authenticatedUser.value != undefined);
 
   const { getUserByEmail, addUser } = useUser();
+
+  onMounted(async () => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const { getUserByEmail } = useUser();
+        const foundUser = await getUserByEmail(user?.email!);
+        if (foundUser) authenticatedUser.value = foundUser;
+      }
+    })
+  })
 
   async function logout() {
     authenticatedUser.value = undefined;

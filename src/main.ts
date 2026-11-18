@@ -49,39 +49,24 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-auth.onAuthStateChanged(async (authenticatedUser) => {
-  /**
-   * The app will only be initialized if the app is empty
-   */
-  if (!app) {
-    app = createApp(App);
+app = createApp(App);
 
-    app.use(createPinia());
-    app.use(router);
+app.use(createPinia());
+app.use(router);
 
-    app.use(Vue3Toastify, {
-      autoClose: 3000,
-      theme: 'dark'
-    } as ToastContainerOptions);
+app.use(Vue3Toastify, {
+  autoClose: 3000,
+  theme: 'dark'
+} as ToastContainerOptions);
 
-    app.use(PrimeVue, {
-      license: import.meta.env.VITE_PRIME_UI_LICENCE,
-      theme: {
-        preset: Aura,
-        options: {
-          darkModeSelector: false
-        }
-      }
-    });
-
-    app.mount('#app');
-  }
-
-  const authStore = useAuthStore();
-
-  if (authenticatedUser) {
-    const { getUserByEmail } = useUser();
-    const user = await getUserByEmail(authenticatedUser.email!);
-    if (user) authStore.authenticatedUser = user;
+app.use(PrimeVue, {
+  license: import.meta.env.VITE_PRIME_UI_LICENCE,
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: false
+    }
   }
 });
+
+app.mount('#app');
