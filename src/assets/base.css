@@ -143,7 +143,7 @@ textarea:hover {
 }
 
 input[type='radio'],
-input[type='checkbox'] {
+input[type='checkbox']:not(.p-toggleswitch-input) {
   accent-color: var(--cv-steel);
   width: 1rem;
   height: 1rem;
