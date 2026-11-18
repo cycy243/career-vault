@@ -95,11 +95,12 @@
 </template>
 <script setup lang="ts">
 import type JobApplication from '@/modules/model/jobApplication';
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import IconSortArrow from '../icons/IconSortArrow.vue';
 import IconDelete from '../icons/IconDelete.vue';
 import IconEdit from '../icons/IconEdit.vue';
 import type { CompanyInformation } from '@/modules/model/companyInformation';
+import { jobApplicationsCollection } from '@/modules/configs/firebase.js';
 
 interface JobApplicationTableProps {
   jobApplications: Array<JobApplication>;
@@ -111,14 +112,29 @@ const applications = ref<Array<JobApplication>>([]);
 
 const sortColumn = ref<string>();
 const ascending = ref(false);
+
+watch(() => props.jobApplications, applications => {  
+  if(!applications || applications.length == 0)
+    return
+
+  if(!sortColumn.value) {
+    sort('sendDate')
+  }
+})
+
 function sort(col: keyof JobApplication | keyof CompanyInformation) {
+  applications.value = props.jobApplications;
+  if(!applications.value || applications.value.length == 0)
+    return
+
   if (sortColumn.value === col) {
     ascending.value = !ascending.value;
   } else {
     ascending.value = false;
     sortColumn.value = col;
   }
-  applications.value = props.jobApplications;
+  
+
   if (col in applications.value[0]) {
     sortOnApplicationProps(applications.value, ascending.value, col as keyof JobApplication);
   } else {
