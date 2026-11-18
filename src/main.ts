@@ -34,19 +34,15 @@ if (import.meta.env.MODE === 'test') {
 
 let app: AppType<Element> | undefined = undefined;
 
-router.beforeEach((to, from, next) => {
-  if (!to.meta.requiresAuth) {
-    next();
-    return;
-  }
+router.beforeEach(async (to) => {
+  if (!to.meta.requiresAuth) 
+    return true;
 
   const store = useAuthStore();
+  // On a page refresh Firebase restores the session asynchronously: wait for it before deciding.
+  await store.waitForAuthReady();
 
-  if (store.isAuthenticated) {
-    next();
-  } else {
-    next({ name: 'home' });
-  }
+  return store.isAuthenticated ? true : { name: 'home' };
 });
 
 app = createApp(App);

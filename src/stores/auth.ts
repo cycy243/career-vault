@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import User from '@/modules/model/User';
 import { auth } from '@/modules/configs/firebase';
@@ -18,15 +18,33 @@ export const useAuthStore = defineStore('auth', () => {
 
   const { getUserByEmail, addUser } = useUser();
 
-  onMounted(async () => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const { getUserByEmail } = useUser();
-        const foundUser = await getUserByEmail(user?.email!);
-        if (foundUser) authenticatedUser.value = foundUser;
-      }
-    })
-  })
+  let authReady: Promise<void> | undefined;
+
+  /**
+   * Resolves once Firebase has restored (or not) the persisted session on page load,
+   * and the matching user profile has been loaded. Keeps listening to later auth changes.
+   */
+  function waitForAuthReady(): Promise<void> {
+    if (!authReady) {
+      authReady = new Promise((resolve) => {
+        onAuthStateChanged(auth, async (user) => {
+          try {
+            if (user?.email) {
+              const foundUser = await getUserByEmail(user.email);
+              if (foundUser) authenticatedUser.value = foundUser;
+            } else {
+              authenticatedUser.value = undefined;
+            }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            resolve();
+          }
+        });
+      });
+    }
+    return authReady;
+  }
 
   async function logout() {
     authenticatedUser.value = undefined;
@@ -75,6 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     authenticatedUser,
     isAuthenticated,
+    waitForAuthReady,
     logout,
     register,
     loginWithCredentials
