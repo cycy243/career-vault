@@ -127,7 +127,7 @@
         v-model="interviewDate"
         v-bind="interviewDateAttrs"
       />
-      <FormInput
+      <FormToggle
         name="isAccepted"
         title="Is accepted"
         :error="errors.isAccepted"
@@ -135,6 +135,7 @@
         type="checkbox"
         v-model="isAccepted"
         v-bind="isAcceptedAttrs"
+        :checked="jobApplication?.positiveReponse ?? false"
       />
     </fieldset>
     <fieldset v-if="applicationType === 'job_offer'">
@@ -184,6 +185,7 @@ import JobApplication from '@/modules/model/jobApplication';
 import { ref, watch } from 'vue';
 import FormGroupInputRadio from './FormGroupInputRadio.vue';
 import FormInputSelect from './FormInputSelect.vue';
+import FormToggle from './FormToggle.vue';
 
 type JobApplicationFormProps = {
   jobApplication?: JobApplication;

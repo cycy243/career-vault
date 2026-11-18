@@ -18,6 +18,8 @@ import ExportJobApplication from './modules/services/files/implementation/export
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { useUser } from './composables/useUser';
+import PrimeVue from 'primevue/config';
+import Aura from '@primeuix/themes/aura'
 
 if (import.meta.env.MODE === 'test') {
   import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
@@ -71,6 +73,16 @@ auth.onAuthStateChanged(async (authenticatedUser) => {
       autoClose: 3000,
       theme: 'dark'
     } as ToastContainerOptions);
+
+    app.use(PrimeVue, {
+      license: import.meta.env.VITE_PRIME_UI_LICENCE,
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: false
+        }
+      }
+    })
 
     app.provide<IAuthRepository>(
       'userAuthReposiroty',
