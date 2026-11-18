@@ -24,7 +24,7 @@
             <IconSortArrow v-if="'positiveReponse' == sortColumn" :is-ascending="ascending" />
           </td>
           <td @click="sort('applicationLink')">
-            Offer's link
+            Link
             <IconSortArrow v-if="'applicationLink' == sortColumn" :is-ascending="ascending" />
           </td>
           <td>Actions</td>
@@ -42,9 +42,9 @@
             <td>
               {{ application.isSpontaneous ? 'Spontaneous application' : application.jobTitle }}
             </td>
-            <td>{{ application.sendDate?.toLocaleDateString() ?? 'Nothing sent yet' }}</td>
+            <td>{{ application.sendDate?.toLocaleDateString() ?? '/' }}</td>
             <td>
-              {{ application.responseDate?.toLocaleDateString() ?? 'No response yet' }}
+              {{ application.responseDate?.toLocaleDateString() ?? '/' }}
             </td>
             <td>
               <span
@@ -63,22 +63,22 @@
                 target="_blank"
                 >offre's link</a
               >
-              <p v-else>No links available</p>
+              <p v-else>/</p>
             </td>
             <td class="actions">
-              <IconDelete
-                class="action-icon action-delete"
-                color="currentColor"
-                role="button"
-                aria-label="Delete application"
-                @click="onDeleteClicked(application.applicationId)"
-              />
               <IconEdit
                 class="action-icon action-edit"
                 color="currentColor"
                 role="button"
                 aria-label="Edit application"
                 @click="onEditClicked(application)"
+              />
+              <IconDelete
+                class="action-icon action-delete"
+                color="currentColor"
+                role="button"
+                aria-label="Delete application"
+                @click="onDeleteClicked(application.applicationId)"
               />
             </td>
           </tr>
@@ -95,12 +95,11 @@
 </template>
 <script setup lang="ts">
 import type JobApplication from '@/modules/model/jobApplication';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import IconSortArrow from '../icons/IconSortArrow.vue';
 import IconDelete from '../icons/IconDelete.vue';
 import IconEdit from '../icons/IconEdit.vue';
 import type { CompanyInformation } from '@/modules/model/companyInformation';
-import { jobApplicationsCollection } from '@/modules/configs/firebase.js';
 
 interface JobApplicationTableProps {
   jobApplications: Array<JobApplication>;
@@ -273,7 +272,7 @@ tr td {
   text-align: center;
 }
 
-tr td:first-child,
+tr td:first-child, tr td:nth-child(2),
 thead td {
   text-align: start;
 }
@@ -311,6 +310,9 @@ tbody a:hover {
 
 .actions {
   white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  gap: .4rem;
 }
 
 .action-icon {
