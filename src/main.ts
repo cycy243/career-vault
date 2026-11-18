@@ -94,6 +94,5 @@ auth.onAuthStateChanged(async (authenticatedUser) => {
     const { getUserByEmail } = useUser();
     const user = await getUserByEmail(authenticatedUser.email!);
     if (user) authStore.authenticatedUser = user;
-    console.log('éUser logged in');
   }
 });

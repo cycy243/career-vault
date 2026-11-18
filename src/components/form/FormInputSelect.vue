@@ -11,7 +11,7 @@
 </template>
 <script lang="ts">
 import { Field } from 'vee-validate';
-import { defineComponent, type Component, type DefineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType } from 'vue';
 
 export interface Option {
   name: string;
@@ -25,11 +25,11 @@ export default defineComponent({
   },
   props: {
     inputName: {
-      type: Object as PropType<string>,
+      type: String,
       required: true
     },
     inputLabel: {
-      type: Object as PropType<string>,
+      type: String,
       required: true
     },
     options: {

@@ -48,7 +48,7 @@
       <legend>Contact</legend>
       <FormInputSelect
         inputLabel="How did you apply?"
-        inputName="apply-method"
+        :inputName="'apply-method'"
         :options="[
           { name: 'email', value: 'By email' },
           { name: 'website', value: 'With a website' },
