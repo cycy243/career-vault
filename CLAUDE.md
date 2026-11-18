@@ -31,17 +31,17 @@ npm run deploy:firebase     # build + firebase deploy
 
 **Bootstrap (`src/main.ts`)** — the Vue app is created lazily inside the first `auth.onAuthStateChanged` callback, so Firebase auth state is known before mount. On each auth change, the Firestore user profile is loaded into the Pinia auth store. The router guard redirects routes with `meta.requiresAuth` to `home` if `useAuthStore().isAuthenticated` is false. When `MODE === 'test'`, `main.ts` deletes the `test@test.com` user on startup so the register E2E test can re-run.
 
-**Dependency injection** — services are wired in `main.ts` via `app.provide` and consumed with `inject` (see `TrackingView.vue`). Injection keys are string literals: `'userAuthReposiroty'` (typo is the actual key), `'jobApplicationRepository'`, `'jobApplicationService'`, `'exportJobApplication'`.
+**Data access = composables** — Firebase access goes through composables in `src/composables/` (no repository/service classes):
+- `useJobApplication()` — per-call reactive state (`jobApplications`, `isLoading`, `error`) plus `loadCurrentUserJobApplication`, `addApplication`, `updateApplication`, `saveApplication` (adds or updates depending on whether `applicationId` is set), `deleteApplication`. Uploads offer files to Storage under `offer-details/<uuid>-<name>`, converts Firestore timestamps / legacy flat fields (`societyName`, `societyWebsite`) into `JobApplication` models, and reads the current uid from `useAuthStore()`. Used by `TrackingView`.
+- `useUser()` — user profile lookup/creation; used by `stores/auth.ts` (Pinia), which handles login/register/logout.
+- `useExportJobApplication(source)` — `exportToPdf` (jspdf) / `exportToExcel` (xlsx-js-style); `source` is a `MaybeRefOrGetter<JobApplication[]>` read at export time. Throws `ServiceError` on failure; the view shows the toasts.
 
-**Layers under `src/modules/`**:
+No `provide`/`inject` is used for services.
+
+**`src/modules/`**:
 - `configs/firebase.ts` — initializes Firebase and exports `auth`, `db`, `storage` and the collection refs (`users`, `jobApplications`, `comments`).
-- `repository/` — interfaces (`I*Repository`) plus Firebase implementations in `implementation/firebase/`. `FirebaseJobApplicationRepository` handles Firestore CRUD, uploads offer files to Storage under `offer-details/`, and converts Firestore timestamps / legacy flat fields (`societyName`) into `JobApplication` models.
-- `services/` — interfaces + implementations; `JobApplicationService.saveApplication` adds or updates depending on whether `applicationId` is set. `services/files/` exports applications to PDF (jspdf) / Excel (xlsx-js-style).
+- `services/errors/` — `ServiceError`.
 - `model/` — `JobApplication`, `User`, company/contact info classes.
-
-**Parallel older path** — there are two ways data access happens, and both are in use:
-- `stores/auth.ts` (Pinia) and the `composables/` (`useUser`, `useJobApplication`) call the Firebase SDK directly through the shared collection refs instead of going through the injected repositories. Auth/login/register flows use the store; `TrackingView` uses the injected repository/service.
-- Pick the right one when changing behavior, and keep both consistent if a change touches shared data.
 
 **Testing Firebase code** — tests mock `firebase/auth`, `firebase/firestore`, `firebase/storage` and `@/modules/configs/firebase` with `vi.mock` + `vi.hoisted` (examples: `src/composables/__tests__/useJobApplication.spec.ts`, `tests/test-utils/mock/firebaseAuth.ts`).
 

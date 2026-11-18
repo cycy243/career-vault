@@ -5,21 +5,13 @@ import { createPinia } from 'pinia';
 
 import App from './App.vue';
 import router from './router';
-import { auth, jobApplicationsCollection, usersCollection } from './modules/configs/firebase';
-import type IAuthRepository from './modules/repository/IAuthRepository';
-import FireBaseAuthRepository from './modules/repository/implementation/firebase/fireBaseAuthRepository';
+import { auth, usersCollection } from './modules/configs/firebase';
 import { useAuthStore } from './stores/auth';
-import type IJobApplicationRepository from './modules/repository/IJobApplicationRepository';
-import FirebaseJobApplicationRepository from './modules/repository/implementation/firebase/firebaseJobApplicationRepository';
-import type IJobApplicationService from './modules/services/IJobApplicationService';
-import JobApplicationService from './modules/services/implementation/JobApplicationService';
-import type IExportJobApplication from './modules/services/files/iExportJobApplication';
-import ExportJobApplication from './modules/services/files/implementation/exportJobApplication';
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { useUser } from './composables/useUser';
 import PrimeVue from 'primevue/config';
-import Aura from '@primeuix/themes/aura'
+import Aura from '@primeuix/themes/aura';
 
 if (import.meta.env.MODE === 'test') {
   import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
@@ -57,8 +49,6 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-const jobApplicationRepository = new FirebaseJobApplicationRepository(jobApplicationsCollection);
-
 auth.onAuthStateChanged(async (authenticatedUser) => {
   /**
    * The app will only be initialized if the app is empty
@@ -82,20 +72,7 @@ auth.onAuthStateChanged(async (authenticatedUser) => {
           darkModeSelector: false
         }
       }
-    })
-
-    app.provide<IAuthRepository>(
-      'userAuthReposiroty',
-      new FireBaseAuthRepository(usersCollection, auth)
-    );
-
-    app.provide<IJobApplicationRepository>('jobApplicationRepository', jobApplicationRepository);
-    app.provide<IJobApplicationService>(
-      'jobApplicationService',
-      new JobApplicationService(jobApplicationRepository, auth)
-    );
-
-    app.provide<IExportJobApplication>('exportJobApplication', new ExportJobApplication());
+    });
 
     app.mount('#app');
   }

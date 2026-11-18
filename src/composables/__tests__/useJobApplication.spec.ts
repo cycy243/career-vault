@@ -40,6 +40,8 @@ vi.mock('firebase/storage', async (importOriginal) => {
 const mockedFirestore = vi.hoisted(() => ({
   getDocs: vi.fn(),
   setDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
   doc: vi.fn(() => {
     return {
       id: randomUUID()
@@ -127,6 +129,84 @@ describe('useJobApplication Tests', () => {
       expect(addResult).toBeFalsy();
       expect(error.value).toBeDefined();
       expect(jobApplications.value).toHaveLength(0);
+    });
+  });
+
+  describe('load applications', () => {
+    it('maps firestore documents, timestamps and legacy flat fields', async () => {
+      mockedFirestore.getDocs.mockResolvedValueOnce({
+        docs: [
+          {
+            id: 'doc-1',
+            data: () => ({
+              societyName: 'Legacy Corp',
+              jobTitle: 'Dev',
+              sendDate: { seconds: 1700000000 }
+            })
+          },
+          {
+            id: 'doc-2',
+            data: () => ({
+              companyInformation: { societyName: 'New Corp', societyWebsite: 'new.io' }
+            })
+          }
+        ]
+      });
+      const { jobApplications, loadCurrentUserJobApplication, isLoading } = useJobApplication();
+
+      const result = await loadCurrentUserJobApplication();
+
+      expect(result).toBeTruthy();
+      expect(isLoading.value).toBeFalsy();
+      expect(jobApplications.value).toHaveLength(2);
+      expect(jobApplications.value[0].applicationId).toBe('doc-1');
+      expect(jobApplications.value[0].companyInformation.societyName).toBe('Legacy Corp');
+      expect(jobApplications.value[0].sendDate).toEqual(new Date(1700000000 * 1000));
+      expect(jobApplications.value[1].companyInformation.societyWebsite).toBe('new.io');
+    });
+
+    it('when an error occurs, error is defined and function returns false', async () => {
+      mockedFirestore.getDocs.mockRejectedValueOnce(new FirebaseError('', ''));
+      const { error, loadCurrentUserJobApplication } = useJobApplication();
+
+      expect(await loadCurrentUserJobApplication()).toBeFalsy();
+      expect(error.value).toBeDefined();
+    });
+  });
+
+  describe('save / update / delete', () => {
+    const existing = () =>
+      JobApplication.createJobApplication({ societyName: 'Corp', applicationId: 'doc-1' });
+
+    it('saveApplication updates the application when it has an id', async () => {
+      const { jobApplications, saveApplication } = useJobApplication();
+      jobApplications.value = [existing()];
+      const updated = { ...existing(), jobTitle: 'Lead' } as JobApplication;
+
+      const result = await saveApplication(updated, '');
+
+      expect(mockedFirestore.updateDoc).toHaveBeenCalled();
+      expect(result).toEqual(updated);
+      expect(jobApplications.value[0].jobTitle).toBe('Lead');
+    });
+
+    it('deleteApplication removes the application from the list', async () => {
+      const { jobApplications, deleteApplication } = useJobApplication();
+      jobApplications.value = [existing()];
+
+      expect(await deleteApplication('doc-1')).toBeTruthy();
+      expect(mockedFirestore.deleteDoc).toHaveBeenCalled();
+      expect(jobApplications.value).toHaveLength(0);
+    });
+
+    it('deleteApplication keeps the list and sets error on failure', async () => {
+      mockedFirestore.deleteDoc.mockRejectedValueOnce(new FirebaseError('', ''));
+      const { jobApplications, deleteApplication, error } = useJobApplication();
+      jobApplications.value = [existing()];
+
+      expect(await deleteApplication('doc-1')).toBeFalsy();
+      expect(error.value).toBeDefined();
+      expect(jobApplications.value).toHaveLength(1);
     });
   });
 });

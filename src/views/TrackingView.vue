@@ -63,13 +63,11 @@ import JobApplicationForm from '@/components/form/JobApplicationForm.vue';
 import IconClose from '@/components/icons/IconClose.vue';
 
 import JobApplication from '@/modules/model/jobApplication';
-import type IJobApplicationRepository from '@/modules/repository/IJobApplicationRepository';
-import { h, inject, onMounted, onBeforeUnmount, ref, defineAsyncComponent } from 'vue';
+import { h, onMounted, onBeforeUnmount, ref, defineAsyncComponent } from 'vue';
 
-import { useAuthStore } from '@/stores/auth';
-import type IJobApplicationService from '@/modules/services/IJobApplicationService';
+import { useJobApplication } from '@/composables/useJobApplication';
+import { useExportJobApplication } from '@/composables/useExportJobApplication';
 import IconToPDF from '@/components/icons/IconToPDF.vue';
-import type IExportJobApplication from '@/modules/services/files/iExportJobApplication';
 import ServiceError from '@/modules/services/errors/serviceError';
 import { toast } from 'vue3-toastify';
 import IconToExcel from '@/components/icons/IconToExcel.vue';
@@ -80,12 +78,16 @@ const JobApplicationTable = defineAsyncComponent({
   delay: 150
 });
 
-const authStore = useAuthStore();
+const {
+  jobApplications,
+  isLoading,
+  loadCurrentUserJobApplication,
+  saveApplication,
+  deleteApplication
+} = useJobApplication();
+isLoading.value = true;
 
 const showForm = ref(false);
-const isLoading = ref(true);
-
-const jobApplications = ref<Array<JobApplication>>([]);
 const selectedApplication = ref<JobApplication | undefined>();
 
 const toggleFormDisplay = () => {
@@ -101,26 +103,9 @@ const onKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && showForm.value) closeForm();
 };
 
-const jobApplicationRepository = inject<IJobApplicationRepository>(
-  'jobApplicationRepository'
-) as IJobApplicationRepository;
-const jobApplicationService = inject<IJobApplicationService>(
-  'jobApplicationService'
-) as IJobApplicationService;
-
 const onSubmit = async (values: JobApplication, application: File | string) => {
-  const result = await jobApplicationService.saveApplication(values, application);
-  if (result) {
-    showForm.value = false;
-    if (values.applicationId) {
-      const previousValueIndex = jobApplications.value.findIndex(
-        (ja: JobApplication) => ja.applicationId === values.applicationId
-      );
-      jobApplications.value[previousValueIndex] = result;
-    } else {
-      jobApplications.value.push(result);
-    }
-  }
+  const result = await saveApplication(values, application);
+  if (result) showForm.value = false;
 };
 
 const onDeleteApplication = async (applicationId: string | undefined) => {
@@ -129,10 +114,8 @@ const onDeleteApplication = async (applicationId: string | undefined) => {
     return false;
   }
 
-  const deleteResult = await jobApplicationRepository.deleteApplication(applicationId);
-  if (deleteResult) {
+  if (await deleteApplication(applicationId)) {
     console.info('Doc sucessfully deleted');
-    jobApplications.value = jobApplications.value.filter((a) => a.applicationId !== applicationId);
   } else {
     console.info('An error occured');
   }
@@ -143,57 +126,25 @@ const onUpdate = async (application: JobApplication) => {
   showForm.value = true;
 };
 
-const exportJobApplicationService = inject<IExportJobApplication>('exportJobApplication');
-const exportToPdf = async () => {
+const exporter = useExportJobApplication(jobApplications);
+
+const runExport = async (doExport: () => Promise<boolean>) => {
   try {
-    await exportJobApplicationService?.exportToPdf(jobApplications.value);
-    toast('Doc sucessfully exported', {
-      type: 'success',
-      autoClose: 1000
-    });
+    await doExport();
+    toast('Doc sucessfully exported', { type: 'success', autoClose: 1000 });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      toast(error.message, {
-        type: 'error'
-      });
-    } else {
-      toast('An unexpected error occured', {
-        type: 'error'
-      });
-    }
+    const message = error instanceof ServiceError ? error.message : 'An unexpected error occured';
+    toast(message, { type: 'error' });
   }
 };
 
-const exportToExcel = async () => {
-  try {
-    await exportJobApplicationService?.exportToExcel(jobApplications.value);
-    toast('Doc sucessfully exported', {
-      type: 'success',
-      autoClose: 1000
-    });
-  } catch (error) {
-    if (error instanceof ServiceError) {
-      toast(error.message, {
-        type: 'error'
-      });
-    } else {
-      toast('An unexpected error occured', {
-        type: 'error'
-      });
-    }
-  }
-};
+const exportToPdf = () => runExport(exporter.exportToPdf);
+const exportToExcel = () => runExport(exporter.exportToExcel);
 
 onMounted(async () => {
   window.addEventListener('keydown', onKeydown);
-  try {
-    const gettedApplications = await jobApplicationRepository.getApplications(
-      authStore.authenticatedUser?.uid!
-    );
-    jobApplications.value = gettedApplications ?? [];
-  } finally {
-    isLoading.value = false;
-  }
+  await loadCurrentUserJobApplication();
+  isLoading.value = false;
 });
 
 onBeforeUnmount(() => {
