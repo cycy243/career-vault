@@ -1,35 +1,81 @@
 <template>
   <header class="header">
-    <img src="/src/assets/careervault-logo.svg" alt="Career Vault logo" class="career-vault-logo" />
-    <div class="wrapper menu-wrapper">
-      <CVNavigationMenu />
-      <CVAuthMenu />
+    <div class="header-inner">
+      <RouterLink :to="{ name: 'home' }" class="logo-link" aria-label="CareerVault home">
+        <img
+          src="/src/assets/careervault-logo.svg"
+          alt="Career Vault logo"
+          class="career-vault-logo"
+        />
+      </RouterLink>
+      <div class="menu-wrapper">
+        <CVNavigationMenu />
+        <CVAuthMenu />
+      </div>
     </div>
   </header>
 </template>
 <script setup lang="ts">
-import CVNavigationMenu from '@/components/globals/menu/CVNavigationMenu.vue'
-import CVAuthMenu from '@/components/globals/menu/CVAuthMenu.vue'
+import CVNavigationMenu from '@/components/globals/menu/CVNavigationMenu.vue';
+import CVAuthMenu from '@/components/globals/menu/CVAuthMenu.vue';
 </script>
 <style lang="css" scoped>
-.career-vault-logo {
-  width: 8rem;
-}
-
 .header {
-  align-items: flex-end;
-  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--cv-steel);
+  color: var(--cv-white);
+  box-shadow: 0 4px 16px -8px rgba(30, 72, 92, 0.5);
 }
 
-.header,
-.wrapper.menu-wrapper {
+.header-inner {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 0.5rem 16px;
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
 }
 
-.header .wrapper.menu-wrapper {
+.logo-link {
+  display: flex;
+  padding: 0;
+}
+
+.logo-link:hover {
+  background: none;
+}
+
+.career-vault-logo {
+  width: 6.5rem;
+  display: block;
+  transition: transform var(--cv-med) var(--cv-ease);
+}
+
+.logo-link:hover .career-vault-logo {
+  transform: scale(1.04);
+}
+
+.menu-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-inline: 2.5%;
-  width: 80%;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .header-inner {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .menu-wrapper {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 </style>

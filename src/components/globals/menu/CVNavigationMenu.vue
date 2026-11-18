@@ -1,21 +1,20 @@
 <template>
-  <nav class="menu">
-    <RouterLink :to="{ name: 'home' }">Home</RouterLink>
-    <RouterLink :to="{ name: 'about' }">About</RouterLink>
+  <nav class="menu" aria-label="Main">
+    <RouterLink :to="{ name: 'home' }" class="cv-nav-link">Home</RouterLink>
+    <RouterLink :to="{ name: 'about' }" class="cv-nav-link">About</RouterLink>
     <template v-if="authStore.isAuthenticated">
-      <RouterLink :to="{ name: 'tracking' }">Job tracking</RouterLink>
+      <RouterLink :to="{ name: 'tracking' }" class="cv-nav-link">Job tracking</RouterLink>
     </template>
   </nav>
 </template>
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth';
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 </script>
 <style lang="css" scoped>
 .menu {
-  min-width: 200px;
   display: flex;
-  justify-content: space-between;
+  gap: 1.5rem;
 }
 </style>

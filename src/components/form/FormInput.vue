@@ -45,60 +45,75 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch } from 'vue';
 
 export interface FormInputProps<T> {
-  error?: string
-  title: string
-  name: string
-  id?: string
-  placeholder?: string
-  defaultValue?: T
-  type: string
+  error?: string;
+  title: string;
+  name: string;
+  id?: string;
+  placeholder?: string;
+  defaultValue?: T;
+  type: string;
 }
-const props = defineProps<FormInputProps<string | Date | null>>()
+const props = defineProps<FormInputProps<string | Date | null>>();
 watch(
   () => props.defaultValue,
   (newValue) => {
-    internalValue.value = newValue
+    internalValue.value = newValue;
   }
-)
+);
 
-const emit = defineEmits(['update:modelValue', 'blur'])
+const emit = defineEmits(['update:modelValue', 'blur']);
 
 // Reactive internal value to track the input field's value
-const internalValue = ref(props.defaultValue)
+const internalValue = ref(props.defaultValue);
 
 // Watch for changes in internalValue and emit the 'update:modelValue' event
 watch(internalValue, (newValue: any) => {
-  emit('update:modelValue', newValue)
-})
+  emit('update:modelValue', newValue);
+});
 </script>
 <style lang="css" scoped>
 .input_wrapper {
-  width: 20rem;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
 }
 
 label {
-  width: 8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-input {
-  width: 12rem;
+input:not([type='radio']):not([type='checkbox']) {
+  width: 100%;
 }
 
-input[type='radio'] {
-  width: initial;
+input[type='checkbox'] {
+  justify-self: start;
 }
 
 .error_wrapper {
-  width: 100%;
+  grid-column: 2;
+  font-size: 0.85rem;
+  color: var(--cv-error);
 }
 
 .true_false div {
   display: flex;
-  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 520px) {
+  .input_wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .error_wrapper {
+    grid-column: 1;
+  }
 }
 </style>

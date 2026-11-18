@@ -1,53 +1,33 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* CareerVault palette — same colors as before, now named and reused everywhere */
 :root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
+  --cv-sky: #92daf2; /* page background (logo background) */
+  --cv-steel: #548ca4; /* primary: header bars, table head, buttons */
+  --cv-azure: #3cc4ec; /* logo accent: focus rings, highlights */
+  --cv-ink: #2c3e50; /* text */
+  --cv-white: #ffffff;
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  --cv-steel-hover: #4a7d93;
+  --cv-steel-tint: rgba(84, 140, 164, 0.14);
+  --cv-surface: rgba(255, 255, 255, 0.55);
+  --cv-surface-strong: rgba(255, 255, 255, 0.82);
+  --cv-border: rgba(84, 140, 164, 0.35);
+  --cv-error: #b42318;
 
-  --vt-c-indigo: #2c3e50;
+  --cv-radius-sm: 8px;
+  --cv-radius: 14px;
+  --cv-radius-lg: 20px;
+  --cv-shadow: 0 1px 2px rgba(30, 72, 92, 0.08), 0 8px 24px -8px rgba(30, 72, 92, 0.22);
+  --cv-shadow-lg: 0 2px 4px rgba(30, 72, 92, 0.08), 0 24px 48px -12px rgba(30, 72, 92, 0.35);
 
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
+  --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --cv-fast: 160ms;
+  --cv-med: 260ms;
 
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
-
-/* semantic color variables for this project */
-:root {
-  --color-background: #92daf2;
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
-
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #92daf2;
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
-
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(var(--vt-c-text-light-2));
-  }
+  /* kept for compatibility with existing references */
+  --color-background: var(--cv-sky);
+  --color-text: var(--cv-ink);
+  --color-heading: var(--cv-ink);
+  --color-border: var(--cv-border);
 }
 
 *,
@@ -55,32 +35,259 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  font-weight: normal;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
+  min-height: 100dvh;
+  color: var(--cv-ink);
+  background: var(--cv-sky);
   line-height: 1.6;
   font-family:
-    Inter,
+    'Outfit',
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
     Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--cv-ink);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 1.4rem + 2vw, 2.75rem);
+  font-weight: 600;
+  margin-block: 1.5rem 1.25rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-block-end: 0.5rem;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ---------- Form controls ---------- */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--cv-steel);
+  color: var(--cv-white);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(30, 72, 92, 0.2);
+  transition:
+    background-color var(--cv-fast) var(--cv-ease),
+    transform var(--cv-fast) var(--cv-ease),
+    box-shadow var(--cv-fast) var(--cv-ease);
+}
+
+button:hover {
+  background: var(--cv-steel-hover);
+  box-shadow: 0 4px 14px -4px rgba(30, 72, 92, 0.45);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+input:not([type='radio']):not([type='checkbox']):not([type='file']),
+select,
+textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--cv-border);
+  border-radius: var(--cv-radius-sm);
+  background: var(--cv-surface-strong);
+  transition:
+    border-color var(--cv-fast) var(--cv-ease),
+    box-shadow var(--cv-fast) var(--cv-ease),
+    background-color var(--cv-fast) var(--cv-ease);
+}
+
+input:not([type='radio']):not([type='checkbox']):not([type='file']):hover,
+select:hover,
+textarea:hover {
+  border-color: var(--cv-steel);
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  accent-color: var(--cv-steel);
+  width: 1rem;
+  height: 1rem;
+}
+
+input[type='file'] {
+  font-size: 0.9rem;
+}
+
+input[type='file']::file-selector-button {
+  margin-inline-end: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--cv-steel);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cv-steel);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--cv-fast) var(--cv-ease);
+}
+
+input[type='file']::file-selector-button:hover {
+  background: var(--cv-steel-tint);
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  min-width: 0;
+}
+
+legend {
+  font-weight: 600;
+  color: var(--cv-steel);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  margin-block-end: 0.5rem;
+}
+
+/* Visible keyboard focus everywhere, in the logo's accent color */
+:focus-visible {
+  outline: 3px solid var(--cv-azure);
+  outline-offset: 2px;
+  border-radius: var(--cv-radius-sm);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--cv-steel);
+  box-shadow: 0 0 0 3px rgba(60, 196, 236, 0.45);
+}
+
+/* ---------- Reusable surfaces ---------- */
+.cv-card {
+  background: var(--cv-surface);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--cv-radius-lg);
+  box-shadow: var(--cv-shadow);
+  padding: 1.5rem;
+  backdrop-filter: blur(6px);
+}
+
+/* ---------- Header links: white text, sky-blue underline on hover / active ---------- */
+.cv-nav-link {
+  position: relative;
+  padding: 0.35rem 0.15rem;
+  border-radius: 0;
+  color: var(--cv-white);
+  font-weight: 500;
+  background: none;
+}
+
+.cv-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cv-sky);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--cv-med) var(--cv-ease);
+}
+
+.cv-nav-link:hover,
+.cv-nav-link.router-link-exact-active {
+  color: var(--cv-white);
+  background: none;
+}
+
+.cv-nav-link:hover::after,
+.cv-nav-link.router-link-exact-active::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Page transitions ---------- */
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity var(--cv-med) var(--cv-ease),
+    transform var(--cv-med) var(--cv-ease);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Loading placeholder ---------- */
+.table-skeleton {
+  height: 14rem;
+  border-radius: var(--cv-radius-lg);
+  background: linear-gradient(
+    100deg,
+    var(--cv-surface) 30%,
+    var(--cv-surface-strong) 50%,
+    var(--cv-surface) 70%
+  );
+  background-size: 200% 100%;
+  animation: cv-shimmer 1.2s linear infinite;
+}
+
+@keyframes cv-shimmer {
+  to {
+    background-position: -200% 0;
+  }
 }

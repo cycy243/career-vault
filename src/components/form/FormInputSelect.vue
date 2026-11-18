@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="select-wrapper">
     <label :for="inputName">{{ inputLabel }}</label>
     <VField :name="inputName" :id="inputName" as="select" v-model="value" @change="valueChanged">
       <option value="none" selected>No options selected</option>
@@ -58,3 +58,22 @@ export default defineComponent({
   }
 });
 </script>
+<style lang="css" scoped>
+.select-wrapper {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 520px) {
+  .select-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

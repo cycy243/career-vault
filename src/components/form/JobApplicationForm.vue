@@ -334,4 +334,36 @@ const [contactName, contactNameAttrs] = defineField('contactName', validationOpt
 const [applyMethod, applyMethodAttrs] = defineField('applyMethod', validationOptions);
 const [applyWebSite, applyWebSiteAttrs] = defineField('applyWebSite', validationOptions);
 </script>
-<style lang="css"></style>
+<style lang="css" scoped>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem 1.25rem;
+  border-radius: var(--cv-radius);
+  background: var(--cv-surface);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+fieldset > .error_wrapper {
+  font-size: 0.85rem;
+  color: var(--cv-error);
+}
+
+button[type='submit'] {
+  align-self: flex-end;
+  min-width: 8rem;
+}
+</style>

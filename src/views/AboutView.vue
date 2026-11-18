@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <h1>About CareerVault</h1>
-    <section>
+    <section class="cv-card">
       <h2>About its existence</h2>
       <p>
         The website is first create for myself, the creator, because I wanted to keep the tracking
@@ -10,18 +10,28 @@
         more easy to share it with others.
       </p>
     </section>
-    <section>
+    <section class="cv-card">
       <h2>About the creator</h2>
       <p>Hi! My name is Cyril and I am frechly graduated from a bachelor in Software Development</p>
     </section>
   </div>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    display: flex;
-    align-items: center;
-  }
+<style scoped>
+.about {
+  gap: 1.25rem;
+}
+
+.about h1 {
+  margin-block-start: 3rem;
+}
+
+.about section {
+  width: 100%;
+  max-width: 42rem;
+}
+
+.about p {
+  max-width: 65ch;
 }
 </style>

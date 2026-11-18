@@ -1,33 +1,25 @@
 @import './base.css';
 
 #app {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  font-weight: normal;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-a,
-.green {
+a {
+  color: var(--cv-steel);
   text-decoration: none;
-  color: #548ca4;
-  transition: 0.4s;
-  padding: 3px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition:
+    color var(--cv-fast) var(--cv-ease),
+    background-color var(--cv-fast) var(--cv-ease);
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
+    color: var(--cv-steel-hover);
+    background-color: var(--cv-steel-tint);
   }
 }

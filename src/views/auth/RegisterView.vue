@@ -1,52 +1,85 @@
 <template>
   <main>
     <h1>Register</h1>
-    <p v-if="errorMessage">{{ errorMessage }}</p>
-    <form @submit="onSubmit">
+    <Transition name="form-error">
+      <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
+    </Transition>
+    <form class="cv-card" @submit="onSubmit">
       <fieldset>
-        <label for="lastname">Lastname</label>
-        <input name="lastname" type="text" v-model="lastname" v-bind="lastnameAttrs" />
-        <div class="errors-container">{{ errors.lastname }}</div>
-        <label for="firstname">Firstname</label>
-        <input name="firstname" type="text" v-model="firstname" v-bind="firstnameAttrs" />
-        <div class="errors-container">{{ errors.firstname }}</div>
+        <div class="field">
+          <label for="lastname">Lastname</label>
+          <input
+            id="lastname"
+            name="lastname"
+            type="text"
+            v-model="lastname"
+            v-bind="lastnameAttrs"
+          />
+          <div class="errors-container">{{ errors.lastname }}</div>
+        </div>
+        <div class="field">
+          <label for="firstname">Firstname</label>
+          <input
+            id="firstname"
+            name="firstname"
+            type="text"
+            v-model="firstname"
+            v-bind="firstnameAttrs"
+          />
+          <div class="errors-container">{{ errors.firstname }}</div>
+        </div>
       </fieldset>
       <fieldset>
-        <label for="pseudo">Pseudo</label>
-        <input name="pseudo" type="text" v-model="pseudo" v-bind="pseudoAttrs" />
-        <div class="errors-container">{{ errors.pseudo }}</div>
-        <label for="email">Email</label>
-        <input name="email" type="text" v-model="email" v-bind="emailAttrs" />
-        <div class="errors-container">{{ errors.email }}</div>
+        <div class="field">
+          <label for="pseudo">Pseudo</label>
+          <input id="pseudo" name="pseudo" type="text" v-model="pseudo" v-bind="pseudoAttrs" />
+          <div class="errors-container">{{ errors.pseudo }}</div>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="text" v-model="email" v-bind="emailAttrs" />
+          <div class="errors-container">{{ errors.email }}</div>
+        </div>
       </fieldset>
       <fieldset>
-        <label for="password">Password</label>
-        <input name="password" type="password" v-model="password" v-bind="passwordAttrs" />
-        <div class="errors-container">{{ errors.password }}</div>
-        <label for="confirmationPwd">Password confirmation</label>
-        <input
-          name="confirmationPwd"
-          type="password"
-          v-model="confirmationPwd"
-          v-bind="confirmationPwdAttrs"
-        />
-        <div class="errors-container">{{ errors.confirmationPwd }}</div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            v-model="password"
+            v-bind="passwordAttrs"
+          />
+          <div class="errors-container">{{ errors.password }}</div>
+        </div>
+        <div class="field">
+          <label for="confirmationPwd">Password confirmation</label>
+          <input
+            id="confirmationPwd"
+            name="confirmationPwd"
+            type="password"
+            v-model="confirmationPwd"
+            v-bind="confirmationPwdAttrs"
+          />
+          <div class="errors-container">{{ errors.confirmationPwd }}</div>
+        </div>
       </fieldset>
       <button type="submit">Sign up</button>
     </form>
   </main>
 </template>
 <script setup lang="ts">
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/yup'
-import * as yup from 'yup'
-import { ref } from 'vue'
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/yup';
+import * as yup from 'yup';
+import { ref } from 'vue';
 
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
-const { register } = useAuthStore()
-const errorMessage = ref<string>()
+const { register } = useAuthStore();
+const errorMessage = ref<string>();
 
 const schema = toTypedSchema(
   yup.object({
@@ -60,18 +93,18 @@ const schema = toTypedSchema(
     lastname: yup.string().required('You must provide a lastname'),
     firstname: yup.string().required('You must provide a firstname')
   })
-)
+);
 
-const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema })
+const { defineField, handleSubmit, errors } = useForm({ validationSchema: schema });
 
-const [email, emailAttrs] = defineField('email')
-const [password, passwordAttrs] = defineField('password')
-const [confirmationPwd, confirmationPwdAttrs] = defineField('confirmationPwd')
-const [pseudo, pseudoAttrs] = defineField('pseudo')
-const [lastname, lastnameAttrs] = defineField('lastname')
-const [firstname, firstnameAttrs] = defineField('firstname')
+const [email, emailAttrs] = defineField('email');
+const [password, passwordAttrs] = defineField('password');
+const [confirmationPwd, confirmationPwdAttrs] = defineField('confirmationPwd');
+const [pseudo, pseudoAttrs] = defineField('pseudo');
+const [lastname, lastnameAttrs] = defineField('lastname');
+const [firstname, firstnameAttrs] = defineField('firstname');
 
-const router = useRouter()
+const router = useRouter();
 
 const onSubmit = handleSubmit(async (values) => {
   const registerResult = await register({
@@ -80,50 +113,19 @@ const onSubmit = handleSubmit(async (values) => {
     password: values.password,
     firstname: values.firstname,
     lastname: values.lastname
-  })
+  });
   if (!registerResult) {
-    errorMessage.value = undefined
-    router.push({ name: 'tracking' })
+    errorMessage.value = undefined;
+    router.push({ name: 'tracking' });
   } else {
-    errorMessage.value = registerResult
+    errorMessage.value = registerResult;
   }
-})
+});
 </script>
-<style lang="css" scoped>
-form {
-  width: 350px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-fieldset {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-label::after {
-  content: ':';
-}
-
-label {
-  width: 75px;
-}
-
-input {
-  width: 200px;
-}
-
-.errors-container {
-  width: 100%;
-  margin-inline-start: 75px;
-  margin-block-end: 0.6rem;
-  color: red;
-  text-align: right;
-}
-
-input[name='password'] {
-  height: 24px;
+<style scoped src="../../assets/auth-form.css"></style>
+<style scoped>
+main {
+  --auth-form-width: 36rem;
+  --auth-form-cols: 1fr 1fr;
 }
 </style>

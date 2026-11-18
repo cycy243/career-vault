@@ -14,63 +14,64 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch } from 'vue';
 
 interface FormInputProps<T> {
-  title: string
-  name: string
-  id?: string
-  value: string | undefined
-  inputValue: string
-  defaultValue?: T
+  title: string;
+  name: string;
+  id?: string;
+  value: string | undefined;
+  inputValue: string;
+  defaultValue?: T;
 }
-const props = defineProps<FormInputProps<string | Date | null>>()
+const props = defineProps<FormInputProps<string | Date | null>>();
 watch(
   () => props.defaultValue,
   (newValue) => {
-    internalValue.value = newValue
+    internalValue.value = newValue;
   }
-)
+);
 
-const emit = defineEmits(['update:value'])
+const emit = defineEmits(['update:value']);
 
 // Reactive internal value to track the input field's value
-const internalValue = ref(props.defaultValue)
+const internalValue = ref(props.defaultValue);
 
 // Watch for changes in internalValue and emit the 'update:value' event
 watch(internalValue, () => {
-  emitNewValue()
-})
+  emitNewValue();
+});
 
 const isChecked = () => {
-  return props.value === props.inputValue
-}
+  return props.value === props.inputValue;
+};
 
 const emitNewValue = () => {
-  emit('update:value', props.inputValue)
-}
+  emit('update:value', props.inputValue);
+};
 </script>
 <style lang="css" scoped>
-.input_wrapper {
-  width: 20rem;
-  display: flex;
-  flex-wrap: wrap;
+label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--cv-border);
+  border-radius: 999px;
+  background: var(--cv-surface-strong);
+  cursor: pointer;
+  transition:
+    border-color var(--cv-fast) var(--cv-ease),
+    background-color var(--cv-fast) var(--cv-ease);
 }
 
-input {
-  width: 12rem;
+label:hover {
+  border-color: var(--cv-steel);
 }
 
-input[type='radio'] {
-  width: initial;
-}
-
-.error_wrapper {
-  width: 100%;
-}
-
-.true_false div {
-  display: flex;
-  flex-direction: column;
+label:has(input:checked) {
+  border-color: var(--cv-steel);
+  background: var(--cv-steel-tint);
+  font-weight: 500;
 }
 </style>

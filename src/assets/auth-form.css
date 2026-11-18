@@ -1,0 +1,70 @@
+/* Shared layout for the Login and Register forms (imported scoped by each view) */
+form {
+  width: 100%;
+  max-width: var(--auth-form-width, 24rem);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+fieldset {
+  display: grid;
+  grid-template-columns: var(--auth-form-cols, 1fr);
+  column-gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+}
+
+.errors-container {
+  min-height: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--cv-error);
+}
+
+.form-error {
+  width: 100%;
+  max-width: var(--auth-form-width, 24rem);
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--cv-radius);
+  background: rgba(255, 255, 255, 0.75);
+  border-left: 4px solid var(--cv-error);
+  color: var(--cv-error);
+}
+
+button[type='submit'] {
+  margin-top: 0.5rem;
+  padding-block: 0.75rem;
+}
+
+.form-error-enter-active,
+.form-error-leave-active {
+  transition:
+    opacity var(--cv-med) var(--cv-ease),
+    transform var(--cv-med) var(--cv-ease);
+}
+
+.form-error-enter-from,
+.form-error-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+@media (max-width: 560px) {
+  fieldset {
+    grid-template-columns: 1fr;
+  }
+}
