@@ -3,7 +3,7 @@
       <label :for="name">{{ title }}:</label>
       <div>
         <p>No</p>
-        <ToggleSwitch v-model="internalValue" inputId="switch" />
+        <ToggleSwitch v-model="internalValue" :name="name" inputId="switch" />
         <p>Yes</p>
       </div>
     <div v-if="error" class="error_wrapper">
