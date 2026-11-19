@@ -12,6 +12,7 @@ import 'vue3-toastify/dist/index.css';
 import { useUser } from './composables/useUser';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
+import ConfirmationService from 'primevue/confirmationservice';
 
 if (import.meta.env.MODE === 'test') {
   import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
@@ -64,5 +65,6 @@ app.use(PrimeVue, {
     }
   }
 });
+app.use(ConfirmationService);
 
 app.mount('#app');
