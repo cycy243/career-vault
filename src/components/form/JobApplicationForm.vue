@@ -63,7 +63,7 @@
           :title="'Website'"
           :error="errors.applyWebSite"
           :type="'text'"
-          :defaultValue="jobApplication?.contactInformation?.name"
+          :defaultValue="jobApplication?.webSiteApply"
           v-model="applyWebSite"
           v-bind="applyWebSiteAttrs"
         />
@@ -198,7 +198,11 @@ const props = defineProps<JobApplicationFormProps>();
 watch(
   () => props.jobApplication,
   (newValue) => {
+    console.log('set form data')
+    console.log(props.jobApplication);
+    
     if (newValue) {
+      applicationType.value = newValue.isSpontaneous === true ? 'spontaneous' : 'job_offer'
       societyName.value = newValue.companyInformation.societyName;
       sendDate.value = newValue.sendDate;
       interviewDate.value = newValue.interviewDate;
@@ -211,8 +215,11 @@ watch(
       contactName.value = newValue.contactInformation?.name;
       contactFunction.value = newValue.contactInformation?.function;
       offerDetails.value = newValue.applicationLink;
+      applyMethod.value = newValue.applicationMethod
+      applyWebSite.value = newValue.webSiteApply;
     } else {
       resetForm();
+      isAccepted.value = false;
     }
   },
   {
@@ -284,7 +291,8 @@ const onSubmit = handleSubmit(
       ...values,
       positiveReponse: values.isAccepted,
       applicationMethod: values.applyMethod as 'email' | 'website' | 'linkedin' | undefined,
-      contactMail: values.contactEmail
+      contactMail: values.contactEmail,
+      webSiteApply: values.applyWebSite
     });
 
     submittedApplication.applicationId = props.jobApplication?.applicationId;
