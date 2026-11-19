@@ -79,17 +79,32 @@
       :first="currentPage * rows"
       :rows="rows"
       :total-records="totalRecords"
-      :rows-per-page-options="ROWS_PER_PAGE_OPTIONS"
       :page-link-size="5"
-      template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+      template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
       class="table-paginator"
       @page="emits('page', { page: $event.page, rows: $event.rows })"
-    />
+    >
+      <template #start>
+        <span class="total-records">
+          {{ totalRecords }} {{ totalRecords === 1 ? 'application' : 'applications' }}
+        </span>
+      </template>
+      <template #end>
+        <Select
+          :model-value="rows"
+          :options="ROWS_PER_PAGE_OPTIONS"
+          class="rows-per-page"
+          aria-label="Applications per page"
+          @update:model-value="(value: number) => emits('page', { page: 0, rows: value })"
+        />
+      </template>
+    </Paginator>
   </div>
 </template>
 <script setup lang="ts">
 import type JobApplication from '@/modules/model/jobApplication';
 import Paginator from 'primevue/paginator';
+import Select from 'primevue/select';
 import IconSortArrow from '../icons/IconSortArrow.vue';
 import IconDelete from '../icons/IconDelete.vue';
 import IconEdit from '../icons/IconEdit.vue';
@@ -307,6 +322,35 @@ tbody a:hover {
   padding: 0.6rem 1rem;
   background: transparent;
   color: var(--cv-ink);
+}
+
+/* Start and end share the free space equally, so the page buttons stay centered. */
+.table-paginator :deep(.p-paginator-content-start),
+.table-paginator :deep(.p-paginator-content-end) {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.table-paginator :deep(.p-paginator-content-end) {
+  justify-content: flex-end;
+}
+
+/* Narrow screens: count and rows-per-page on the first line, page buttons centered below. */
+@media (max-width: 640px) {
+  .table-paginator :deep(.p-paginator-content) {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}
+
+.total-records {
+  color: rgba(44, 62, 80, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .table-paginator :deep(.p-paginator-page),

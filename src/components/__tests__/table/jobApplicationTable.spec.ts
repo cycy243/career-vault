@@ -6,6 +6,7 @@ import JobApplicationTable from '@/components/table/JobApplicationTable.vue';
 import IconDelete from '@/components/icons/IconDelete.vue';
 import IconEdit from '@/components/icons/IconEdit.vue';
 import { PrimeVue } from '@primevue/core';
+import Select from 'primevue/select';
 
 const makeApplications = (count: number) =>
   Array.from(
@@ -111,6 +112,31 @@ describe('JobApplicationTable', () => {
       const wrapper = mountWithPrimeVue(tableProps(makeApplications(15), 200, 6));
       const pages = wrapper.findAll('.p-paginator-page').map((p) => p.text());
       expect(pages).toEqual(['5', '6', '7', '8', '9']);
+    });
+
+    it('shows the total number of applications in the paginator row', () => {
+      const many = mountWithPrimeVue(tableProps(makeApplications(15), 40));
+      expect(many.find('.p-paginator .total-records').text()).toBe('40 applications');
+
+      const one = mountWithPrimeVue(tableProps(makeApplications(1)));
+      expect(one.find('.p-paginator .total-records').text()).toBe('1 application');
+    });
+
+    it('lays out count, page buttons and rows per page from left to right', () => {
+      const wrapper = mountWithPrimeVue(tableProps(makeApplications(15), 40));
+      const parts = wrapper.find('.p-paginator').element.children;
+
+      expect(parts[0].querySelector('.total-records')).not.toBeNull();
+      expect(parts[1].querySelector('.p-paginator-first')).not.toBeNull();
+      expect(parts[2].querySelector('.rows-per-page')).not.toBeNull();
+    });
+
+    it('emits "page" back to the first page when the rows per page change', async () => {
+      const wrapper = mountWithPrimeVue(tableProps(makeApplications(15), 40, 1));
+
+      await wrapper.findComponent(Select).vm.$emit('update:modelValue', 25);
+
+      expect(wrapper.emitted('page')).toEqual([[{ page: 0, rows: 25 }]]);
     });
 
     it('does not render the paginator when there is no application', () => {
