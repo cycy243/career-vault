@@ -1,158 +1,141 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 
 import { mount, shallowMount } from '@vue/test-utils';
-import HelloWorld from '../../HelloWorld.vue';
 import JobApplication from '@/modules/model/jobApplication';
 import JobApplicationTable from '@/components/table/JobApplicationTable.vue';
 import IconDelete from '@/components/icons/IconDelete.vue';
 import IconEdit from '@/components/icons/IconEdit.vue';
+import { PrimeVue } from '@primevue/core';
 
-describe('HelloWorld', () => {
-  it('renders properly', () => {
-    const jobApplications = [
+const makeApplications = (count: number) =>
+  Array.from(
+    { length: count },
+    (_, i) =>
       new JobApplication(
-        'Fake society1',
-        new Date(),
+        `Fake post${i + 1}`,
+        new Date(2024, 0, i + 1),
         new Date(),
         false,
         new Date(),
-        'Fake post1',
-        '1',
+        undefined,
+        `${i + 1}`,
         'linkedin'
-      ),
-      new JobApplication(
-        'Fake society2',
-        new Date(),
-        new Date(),
-        false,
-        new Date(),
-        'Fake post2',
-        '2',
-        'linkedin'
-      ),
-      new JobApplication(
-        'Fake society3',
-        new Date(),
-        new Date(),
-        false,
-        new Date(),
-        'Fake post3',
-        '3',
-        'website'
-      ),
-      new JobApplication(
-        'Fake society4',
-        new Date(),
-        new Date(),
-        false,
-        new Date(),
-        'Fake post4',
-        '4',
-        'email'
-      ),
-      new JobApplication(
-        'Fake society5',
-        new Date(),
-        new Date(),
-        false,
-        new Date(),
-        'Fake post5',
-        '5',
-        'email'
       )
-    ];
-    const wrapper = shallowMount(JobApplicationTable, { props: { jobApplications } });
-    const rows = wrapper.findAll('tbody tr');
-    expect(rows.length).toBe(jobApplications.length);
+  );
+
+/** Props for a table showing `page` (all its rows) out of `totalRecords` applications. */
+const tableProps = (
+  page: JobApplication[],
+  totalRecords = page.length,
+  currentPage = 0,
+  rows = 15
+) => ({
+  jobApplications: page,
+  totalRecords,
+  currentPage,
+  rows,
+  sortField: 'sendDate' as const,
+  ascending: false
+});
+
+describe('JobApplicationTable', () => {
+  beforeAll(() => {
+    // jsdom has no matchMedia; PrimeVue's Select (rows-per-page dropdown) needs it.
+    window.matchMedia ??= (query: string) =>
+      ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false
+      }) as MediaQueryList;
   });
+
+  const mountWithPrimeVue = (props: ReturnType<typeof tableProps>) =>
+    mount(JobApplicationTable, { props, global: { plugins: [PrimeVue] } });
+
+  it('renders one row per application of the page', () => {
+    const wrapper = shallowMount(JobApplicationTable, { props: tableProps(makeApplications(5)) });
+    expect(wrapper.findAll('tbody tr').length).toBe(5);
+  });
+
   it('renders message when no applications', () => {
-    const jobApplications = Array<JobApplication>();
-    const wrapper = shallowMount(JobApplicationTable, { props: { jobApplications } });
+    const wrapper = shallowMount(JobApplicationTable, { props: tableProps([]) });
     const rows = wrapper.findAll('tbody tr');
     expect(rows.length).toBe(1);
     expect(wrapper.text()).toContain('No application made yet');
   });
-  describe('emits test', () => {
-    let jobApplications = Array<JobApplication>(0);
-    beforeEach(() => {
-      jobApplications = [
-        new JobApplication(
-          'Fake society1',
-          new Date(),
-          new Date(),
-          false,
-          new Date(),
-          'Fake post1',
-          '1',
-          undefined
-        ),
-        new JobApplication(
-          'Fake society2',
-          new Date(),
-          new Date(),
-          false,
-          new Date(),
-          'Fake post2',
-          '2',
-          undefined
-        ),
-        new JobApplication(
-          'Fake society3',
-          new Date(),
-          new Date(),
-          false,
-          new Date(),
-          'Fake post3',
-          '3',
-          undefined
-        ),
-        new JobApplication(
-          'Fake society4',
-          new Date(),
-          new Date(),
-          false,
-          new Date(),
-          'Fake post4',
-          '4',
-          undefined
-        ),
-        new JobApplication(
-          'Fake society5',
-          new Date(),
-          new Date(),
-          false,
-          new Date(),
-          'Fake post5',
-          '5',
-          undefined
-        )
-      ];
+
+  it('emits "sort" with the column field when a header is clicked', async () => {
+    const wrapper = shallowMount(JobApplicationTable, { props: tableProps(makeApplications(2)) });
+    await wrapper.findAll('thead td')[0].trigger('click');
+    await wrapper.findAll('thead td')[3].trigger('click');
+    expect(wrapper.emitted('sort')).toEqual([['societyName'], ['responseDate']]);
+  });
+
+  describe('pagination', () => {
+    const navButtons = [
+      '.p-paginator-first',
+      '.p-paginator-prev',
+      '.p-paginator-next',
+      '.p-paginator-last'
+    ];
+    const isDisabled = (wrapper: ReturnType<typeof mountWithPrimeVue>, selector: string) =>
+      wrapper.find(selector).attributes('disabled') !== undefined;
+
+    it('disables first/prev on the first page and emits "page" when going to the last', async () => {
+      const wrapper = mountWithPrimeVue(tableProps(makeApplications(15), 40));
+
+      expect(navButtons.map((s) => isDisabled(wrapper, s))).toEqual([true, true, false, false]);
+
+      await wrapper.find('.p-paginator-last').trigger('click');
+      expect(wrapper.emitted('page')).toEqual([[{ page: 2, rows: 15 }]]);
     });
 
+    it('disables next/last on the last page', () => {
+      const wrapper = mountWithPrimeVue(tableProps(makeApplications(10), 40, 2));
+      expect(navButtons.map((s) => isDisabled(wrapper, s))).toEqual([false, false, true, true]);
+    });
+
+    it('shows only the current page and disables every button when there is one page', () => {
+      const wrapper = mountWithPrimeVue(tableProps(makeApplications(5)));
+
+      expect(wrapper.findAll('.p-paginator-page').length).toBe(1);
+      expect(navButtons.every((s) => isDisabled(wrapper, s))).toBe(true);
+    });
+
+    it('displays at most five page links', () => {
+      const wrapper = mountWithPrimeVue(tableProps(makeApplications(15), 200, 6));
+      const pages = wrapper.findAll('.p-paginator-page').map((p) => p.text());
+      expect(pages).toEqual(['5', '6', '7', '8', '9']);
+    });
+
+    it('does not render the paginator when there is no application', () => {
+      const wrapper = mountWithPrimeVue(tableProps([]));
+      expect(wrapper.find('.p-paginator').exists()).toBe(false);
+    });
+  });
+
+  describe('emits test', () => {
     it('emits "delete" when delete icon is clicked', () => {
-      const wrapper = shallowMount(JobApplicationTable, { props: { jobApplications } });
+      const jobApplications = makeApplications(5);
+      const wrapper = shallowMount(JobApplicationTable, { props: tableProps(jobApplications) });
       const rows = wrapper.findAllComponents(IconDelete);
       rows[0].trigger('click');
-      const emits = wrapper.emitted('delete');
-      expect(emits).toHaveLength(1);
-      expect(emits![0]).toEqual(['1']);
       rows[2].trigger('click');
-      const emits2 = wrapper.emitted('delete');
-      expect(emits2).toHaveLength(2);
-      expect(emits2![1]).toEqual([jobApplications[2].applicationId]);
+      expect(wrapper.emitted('delete')).toEqual([['1'], [jobApplications[2].applicationId]]);
     });
 
     it('emits "update" when edit icon is clicked', () => {
-      const wrapper = shallowMount(JobApplicationTable, { props: { jobApplications } });
+      const jobApplications = makeApplications(5);
+      const wrapper = shallowMount(JobApplicationTable, { props: tableProps(jobApplications) });
       const rows = wrapper.findAllComponents(IconEdit);
       rows[0].trigger('click');
-      const emits = wrapper.emitted('update');
-      expect(emits).toHaveLength(1);
-      expect((emits![0] as JobApplication[])[0]).toEqual(jobApplications[0]);
       rows[2].trigger('click');
-      const emits2 = wrapper.emitted('update');
-      expect(emits2).toHaveLength(2);
-      expect((emits2![1] as JobApplication[])[0]).toEqual(jobApplications[2]);
+      expect(wrapper.emitted('update')).toEqual([[jobApplications[0]], [jobApplications[2]]]);
     });
   });
 });
