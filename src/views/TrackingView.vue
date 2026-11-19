@@ -69,9 +69,16 @@
     </ConfirmDialog>
     <JobApplicationTable
       :job-applications="jobApplications"
+      :total-records="totalRecords"
+      :current-page="currentPage"
+      :rows="rows"
+      :sort-field="sortField"
+      :ascending="ascending"
       :loading="isLoading"
       @delete="onDeleteApplication"
       @update="onUpdate"
+      @page="({ page, rows }) => changePage(page, rows)"
+      @sort="sortBy"
     />
   </main>
 </template>
@@ -99,8 +106,16 @@ const JobApplicationTable = defineAsyncComponent({
 
 const {
   jobApplications,
+  totalRecords,
+  currentPage,
+  rows,
+  sortField,
+  ascending,
   isLoading,
   loadCurrentUserJobApplication,
+  changePage,
+  sortBy,
+  fetchAllApplications,
   saveApplication,
   deleteApplication
 } = useJobApplication();
@@ -161,10 +176,13 @@ const onUpdate = async (application: JobApplication) => {
   showForm.value = true;
 };
 
-const exporter = useExportJobApplication(jobApplications);
+// The table only holds the current page: exports load every application first.
+const applicationsToExport = ref<JobApplication[]>([]);
+const exporter = useExportJobApplication(applicationsToExport);
 
 const runExport = async (doExport: () => Promise<boolean>) => {
   try {
+    applicationsToExport.value = await fetchAllApplications();
     await doExport();
     toast('Doc sucessfully exported', { type: 'success', autoClose: 1000 });
   } catch (error) {

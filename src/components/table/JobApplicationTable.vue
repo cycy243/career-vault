@@ -3,29 +3,9 @@
     <table>
       <thead>
         <tr>
-          <td @click="sort('societyName')">
-            Society name
-            <IconSortArrow v-if="'societyName' == sortColumn" :is-ascending="ascending" />
-          </td>
-          <td @click="sort('jobTitle')">
-            Post's name
-            <IconSortArrow v-if="'jobTitle' == sortColumn" :is-ascending="ascending" />
-          </td>
-          <td @click="sort('sendDate')">
-            Send date
-            <IconSortArrow v-if="'sendDate' == sortColumn" :is-ascending="ascending" />
-          </td>
-          <td @click="sort('responseDate')">
-            response date
-            <IconSortArrow v-if="'responseDate' == sortColumn" :is-ascending="ascending" />
-          </td>
-          <td @click="sort('positiveReponse')">
-            Is accepted
-            <IconSortArrow v-if="'positiveReponse' == sortColumn" :is-ascending="ascending" />
-          </td>
-          <td @click="sort('applicationLink')">
-            Link
-            <IconSortArrow v-if="'applicationLink' == sortColumn" :is-ascending="ascending" />
+          <td v-for="column in columns" :key="column.field" @click="emits('sort', column.field)">
+            {{ column.label }}
+            <IconSortArrow v-if="column.field === sortField" :is-ascending="ascending" />
           </td>
           <td>Actions</td>
         </tr>
@@ -37,7 +17,10 @@
           </tr>
         </template>
         <template v-else-if="jobApplications.length > 0">
-          <tr v-for="(application, index) in jobApplications" :key="index">
+          <tr
+            v-for="(application, index) in jobApplications"
+            :key="application.applicationId ?? index"
+          >
             <td>{{ application.companyInformation?.societyName }}</td>
             <td>
               {{ application.isSpontaneous ? 'Spontaneous application' : application.jobTitle }}
@@ -91,105 +74,74 @@
         </tr>
       </tbody>
     </table>
+    <Paginator
+      v-if="totalRecords > 0"
+      :first="currentPage * rows"
+      :rows="rows"
+      :total-records="totalRecords"
+      :page-link-size="5"
+      template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+      class="table-paginator"
+      @page="emits('page', { page: $event.page, rows: $event.rows })"
+    >
+      <template #start>
+        <span class="total-records">
+          {{ totalRecords }} {{ totalRecords === 1 ? 'application' : 'applications' }}
+        </span>
+      </template>
+      <template #end>
+        <Select
+          :model-value="rows"
+          :options="ROWS_PER_PAGE_OPTIONS"
+          class="rows-per-page"
+          aria-label="Applications per page"
+          @update:model-value="(value: number) => emits('page', { page: 0, rows: value })"
+        />
+      </template>
+    </Paginator>
   </div>
 </template>
 <script setup lang="ts">
 import type JobApplication from '@/modules/model/jobApplication';
-import { ref, watch } from 'vue';
+import Paginator from 'primevue/paginator';
+import Select from 'primevue/select';
 import IconSortArrow from '../icons/IconSortArrow.vue';
 import IconDelete from '../icons/IconDelete.vue';
 import IconEdit from '../icons/IconEdit.vue';
-import type { CompanyInformation } from '@/modules/model/companyInformation';
+import { ROWS_PER_PAGE_OPTIONS, type SortField } from '@/modules/model/jobApplicationPagination';
 
+/**
+ * Displays one page of applications. Paging and sorting are done by `useJobApplication`:
+ * the table only emits `page` and `sort`.
+ */
 interface JobApplicationTableProps {
+  /** Applications of the current page. */
   jobApplications: Array<JobApplication>;
+  totalRecords: number;
+  /** 0-based index of the displayed page. */
+  currentPage: number;
+  rows: number;
+  sortField: SortField;
+  ascending: boolean;
   loading?: boolean;
 }
 
-const props = defineProps<JobApplicationTableProps>();
-const applications = ref<Array<JobApplication>>([]);
+defineProps<JobApplicationTableProps>();
 
-const sortColumn = ref<string>();
-const ascending = ref(false);
-
-watch(() => props.jobApplications, applications => {  
-  if(!applications || applications.length == 0)
-    return
-
-  if(!sortColumn.value) {
-    sort('sendDate')
-  }
-})
-
-function sort(col: keyof JobApplication | keyof CompanyInformation) {
-  applications.value = props.jobApplications;
-  if(!applications.value || applications.value.length == 0)
-    return
-
-  if (sortColumn.value === col) {
-    ascending.value = !ascending.value;
-  } else {
-    ascending.value = false;
-    sortColumn.value = col;
-  }
-  
-
-  if (col in applications.value[0]) {
-    sortOnApplicationProps(applications.value, ascending.value, col as keyof JobApplication);
-  } else {
-    sortOnCompanyInformationProps(
-      applications.value,
-      ascending.value,
-      col as keyof CompanyInformation
-    );
-  }
-}
-
-const sortOnApplicationProps = (
-  arr: JobApplication[],
-  isAscending: boolean,
-  key: keyof JobApplication
-) => {
-  arr.sort((a, b) => {
-    if (a[key]! > b[key]!) {
-      return isAscending ? 1 : -1;
-    } else if (a[key]! < b[key]!) {
-      return isAscending ? -1 : 1;
-    }
-    if (a[key] === b[key]) {
-      return 0;
-    }
-    if (!a[key] || !b[key]) {
-      return -1;
-    }
-    return 0;
-  });
-};
-
-const sortOnCompanyInformationProps = (
-  arr: JobApplication[],
-  isAscending: boolean,
-  key: keyof CompanyInformation
-) => {
-  arr.sort((a, b) => {
-    if (a.companyInformation[key]! > b.companyInformation[key]!) {
-      return isAscending ? 1 : -1;
-    } else if (a.companyInformation[key]! < b.companyInformation[key]!) {
-      return isAscending ? -1 : 1;
-    }
-    if (a.companyInformation[key] === b.companyInformation[key]) {
-      return 0;
-    }
-    if (!a.companyInformation[key] || !b.companyInformation[key]) {
-      return -1;
-    }
-    return 0;
-  });
-};
+const columns: Array<{ field: SortField; label: string }> = [
+  { field: 'societyName', label: 'Society name' },
+  { field: 'jobTitle', label: "Post's name" },
+  { field: 'sendDate', label: 'Send date' },
+  { field: 'responseDate', label: 'response date' },
+  { field: 'positiveReponse', label: 'Is accepted' },
+  { field: 'applicationLink', label: 'Link' }
+];
 
 type JobApplicationTableEmits = {
   (e: 'delete', value: string | undefined): void;
   (e: 'update', value: JobApplication): void;
+  (e: 'page', value: { page: number; rows: number }): void;
+  (e: 'sort', value: SortField): void;
 };
 
 const emits = defineEmits<JobApplicationTableEmits>();
@@ -272,7 +224,8 @@ tr td {
   text-align: center;
 }
 
-tr td:first-child, tr td:nth-child(2),
+tr td:first-child,
+tr td:nth-child(2),
 thead td {
   text-align: start;
 }
@@ -312,7 +265,7 @@ tbody a:hover {
   white-space: nowrap;
   display: flex;
   flex-direction: row;
-  gap: .4rem;
+  gap: 0.4rem;
 }
 
 .action-icon {
@@ -356,6 +309,71 @@ tbody a:hover {
 .empty-hint {
   color: rgba(44, 62, 80, 0.7);
   font-size: 0.9rem;
+}
+
+/* ---------- Pagination (PrimeVue Paginator) ---------- */
+.table-paginator {
+  border-top: 1px solid rgba(84, 140, 164, 0.15);
+}
+
+.table-paginator :deep(.p-paginator) {
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: var(--cv-ink);
+}
+
+/* Start and end share the free space equally, so the page buttons stay centered. */
+.table-paginator :deep(.p-paginator-content-start),
+.table-paginator :deep(.p-paginator-content-end) {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.table-paginator :deep(.p-paginator-content-end) {
+  justify-content: flex-end;
+}
+
+/* Narrow screens: count and rows-per-page on the first line, page buttons centered below. */
+@media (max-width: 640px) {
+  .table-paginator :deep(.p-paginator-content) {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}
+
+.total-records {
+  color: rgba(44, 62, 80, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.table-paginator :deep(.p-paginator-page),
+.table-paginator :deep(.p-paginator-first),
+.table-paginator :deep(.p-paginator-prev),
+.table-paginator :deep(.p-paginator-next),
+.table-paginator :deep(.p-paginator-last) {
+  color: var(--cv-steel);
+  box-shadow: none;
+}
+
+.table-paginator :deep(.p-paginator-page:not(.p-paginator-page-selected):hover),
+.table-paginator :deep(.p-paginator-first:not(:disabled):hover),
+.table-paginator :deep(.p-paginator-prev:not(:disabled):hover),
+.table-paginator :deep(.p-paginator-next:not(:disabled):hover),
+.table-paginator :deep(.p-paginator-last:not(:disabled):hover) {
+  background: var(--cv-steel-tint);
+  color: var(--cv-steel-hover);
+}
+
+.table-paginator :deep(.p-paginator-page-selected) {
+  background: var(--cv-steel);
+  color: var(--cv-white);
 }
 
 .skeleton-bar {

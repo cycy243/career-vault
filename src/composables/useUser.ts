@@ -1,26 +1,26 @@
-import User from '@/modules/model/User'
-import { usersCollection } from '@/modules/configs/firebase'
-import { doc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import User from '@/modules/model/User';
+import { usersCollection } from '@/modules/configs/firebase';
+import { doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 
 export const useUser = () => {
   const getUserByEmail = async (email: string): Promise<User | null> => {
-    const userDoc = (await getDocs(query(usersCollection, where('email', '==', email)))).docs[0]
+    const userDoc = (await getDocs(query(usersCollection, where('email', '==', email)))).docs[0];
     if (userDoc) {
       return {
         ...(userDoc.data() as User),
         uid: userDoc.id
-      }
+      };
     }
-    return null
-  }
+    return null;
+  };
 
   const addUser = async (user: User, userId: string): Promise<User> => {
-    const createdDoc = await doc(usersCollection, userId)
-    const userToAdd = { ...user, uid: userId }
-    delete (userToAdd as { password?: string }).password
-    await setDoc(createdDoc, userToAdd)
-    return userToAdd
-  }
+    const createdDoc = await doc(usersCollection, userId);
+    const userToAdd = { ...user, uid: userId };
+    delete (userToAdd as { password?: string }).password;
+    await setDoc(createdDoc, userToAdd);
+    return userToAdd;
+  };
 
-  return { getUserByEmail, addUser }
-}
+  return { getUserByEmail, addUser };
+};
