@@ -50,6 +50,23 @@
         </div>
       </div>
     </Transition>
+    <ConfirmDialog group="delete-application" :pt="{ root: { class: 'confirm-dialog' } }">
+      <template #container="{ message, acceptCallback, rejectCallback }">
+        <div class="form-header">
+          <h2>{{ message.header }}</h2>
+          <button type="button" class="close-button" aria-label="Close" @click="rejectCallback">
+            <IconClose />
+          </button>
+        </div>
+        <div class="confirm-body">
+          <p>{{ message.message }}</p>
+          <div class="confirm-actions">
+            <button type="button" class="cancel-button" @click="rejectCallback">Cancel</button>
+            <button type="button" class="danger-button" @click="acceptCallback">Delete</button>
+          </div>
+        </div>
+      </template>
+    </ConfirmDialog>
     <JobApplicationTable
       :job-applications="jobApplications"
       :loading="isLoading"
@@ -71,6 +88,8 @@ import IconToPDF from '@/components/icons/IconToPDF.vue';
 import ServiceError from '@/modules/services/errors/serviceError';
 import { toast } from 'vue3-toastify';
 import IconToExcel from '@/components/icons/IconToExcel.vue';
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from 'primevue/useconfirm';
 
 const JobApplicationTable = defineAsyncComponent({
   loader: () => import('@/components/table/JobApplicationTable.vue'),
@@ -108,17 +127,33 @@ const onSubmit = async (values: JobApplication, application: File | string) => {
   if (result) showForm.value = false;
 };
 
-const onDeleteApplication = async (applicationId: string | undefined) => {
+const confirm = useConfirm();
+
+const applicationLabel = (application: JobApplication | undefined) =>
+  [application?.companyInformation.societyName, application?.jobTitle]
+    .filter((part) => part && part.length > 0)
+    .join(' - ');
+
+const onDeleteApplication = (applicationId: string | undefined) => {
   if (!applicationId) {
     console.info("Doc id shouldn't be empty");
-    return false;
+    return;
   }
 
-  if (await deleteApplication(applicationId)) {
-    console.info('Doc sucessfully deleted');
-  } else {
-    console.info('An error occured');
-  }
+  const application = jobApplications.value.find((a) => a.applicationId === applicationId);
+
+  confirm.require({
+    group: 'delete-application',
+    header: 'Delete an application',
+    message: `Are you sure you want to delete the application "${applicationLabel(application)}"?`,
+    accept: async () => {
+      if (await deleteApplication(applicationId)) {
+        console.info('Doc sucessfully deleted');
+      } else {
+        console.info('An error occured');
+      }
+    }
+  });
 };
 
 const onUpdate = async (application: JobApplication) => {
@@ -259,6 +294,56 @@ onBeforeUnmount(() => {
 
 .job-application-form .form {
   padding: 1.5rem;
+}
+
+/* ---------- Delete confirmation (PrimeVue ConfirmDialog, teleported to body) ---------- */
+:global(.confirm-dialog.p-dialog) {
+  width: calc(100% - 32px);
+  max-width: 28rem;
+  background-color: var(--cv-sky);
+  border-radius: var(--cv-radius-lg);
+  border: 1px solid var(--cv-steel);
+  box-shadow: var(--cv-shadow-lg);
+  overflow: hidden;
+  color: var(--cv-ink);
+}
+
+.confirm-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.confirm-body p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cancel-button {
+  background: var(--cv-surface-strong);
+  color: var(--cv-steel);
+  border: 1px solid var(--cv-border);
+}
+
+.cancel-button:hover {
+  background: var(--cv-white);
+  color: var(--cv-steel-hover);
+}
+
+.danger-button {
+  background: var(--cv-error);
+}
+
+.danger-button:hover {
+  background: #912018;
 }
 
 .modal-enter-active,
