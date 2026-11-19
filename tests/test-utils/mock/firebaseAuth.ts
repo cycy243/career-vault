@@ -7,7 +7,8 @@ export const setUpFirebaseAuthMock = () => {
     getAuth: vi.fn(),
     createUserWithEmailAndPassword: vi.fn(),
     setPersistence: vi.fn(() => Promise.resolve()),
-    browserLocalPersistence: vi.fn()
+    browserLocalPersistence: vi.fn(),
+    onAuthStateChanged: vi.fn()
   }));
 
   beforeAll(() => {

@@ -12,6 +12,7 @@ import 'vue3-toastify/dist/index.css';
 import { useUser } from './composables/useUser';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
+import ConfirmationService from 'primevue/confirmationservice';
 
 if (import.meta.env.MODE === 'test') {
   import('firebase/firestore').then(({ getDocs, query, where, doc, deleteDoc }) => {
@@ -34,54 +35,36 @@ if (import.meta.env.MODE === 'test') {
 
 let app: AppType<Element> | undefined = undefined;
 
-router.beforeEach((to, from, next) => {
-  if (!to.meta.requiresAuth) {
-    next();
-    return;
-  }
+router.beforeEach(async (to) => {
+  if (!to.meta.requiresAuth) 
+    return true;
 
   const store = useAuthStore();
+  // On a page refresh Firebase restores the session asynchronously: wait for it before deciding.
+  await store.waitForAuthReady();
 
-  if (store.isAuthenticated) {
-    next();
-  } else {
-    next({ name: 'home' });
-  }
+  return store.isAuthenticated ? true : { name: 'home' };
 });
 
-auth.onAuthStateChanged(async (authenticatedUser) => {
-  /**
-   * The app will only be initialized if the app is empty
-   */
-  if (!app) {
-    app = createApp(App);
+app = createApp(App);
 
-    app.use(createPinia());
-    app.use(router);
+app.use(createPinia());
+app.use(router);
 
-    app.use(Vue3Toastify, {
-      autoClose: 3000,
-      theme: 'dark'
-    } as ToastContainerOptions);
+app.use(Vue3Toastify, {
+  autoClose: 3000,
+  theme: 'dark'
+} as ToastContainerOptions);
 
-    app.use(PrimeVue, {
-      license: import.meta.env.VITE_PRIME_UI_LICENCE,
-      theme: {
-        preset: Aura,
-        options: {
-          darkModeSelector: false
-        }
-      }
-    });
-
-    app.mount('#app');
-  }
-
-  const authStore = useAuthStore();
-
-  if (authenticatedUser) {
-    const { getUserByEmail } = useUser();
-    const user = await getUserByEmail(authenticatedUser.email!);
-    if (user) authStore.authenticatedUser = user;
+app.use(PrimeVue, {
+  license: import.meta.env.VITE_PRIME_UI_LICENCE,
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: false
+    }
   }
 });
+app.use(ConfirmationService);
+
+app.mount('#app');

@@ -5,6 +5,7 @@ import { auth } from '@/modules/configs/firebase';
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
   setPersistence,
   signInWithEmailAndPassword,
   signOut
@@ -16,6 +17,34 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => authenticatedUser.value != undefined);
 
   const { getUserByEmail, addUser } = useUser();
+
+  let authReady: Promise<void> | undefined;
+
+  /**
+   * Resolves once Firebase has restored (or not) the persisted session on page load,
+   * and the matching user profile has been loaded. Keeps listening to later auth changes.
+   */
+  function waitForAuthReady(): Promise<void> {
+    if (!authReady) {
+      authReady = new Promise((resolve) => {
+        onAuthStateChanged(auth, async (user) => {
+          try {
+            if (user?.email) {
+              const foundUser = await getUserByEmail(user.email);
+              if (foundUser) authenticatedUser.value = foundUser;
+            } else {
+              authenticatedUser.value = undefined;
+            }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            resolve();
+          }
+        });
+      });
+    }
+    return authReady;
+  }
 
   async function logout() {
     authenticatedUser.value = undefined;
@@ -64,6 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     authenticatedUser,
     isAuthenticated,
+    waitForAuthReady,
     logout,
     register,
     loginWithCredentials

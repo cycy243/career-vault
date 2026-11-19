@@ -97,6 +97,55 @@ describe('Auth store tests', () => {
     })
   })
 
+  describe('waitForAuthReady', () => {
+    it('restores the persisted user once firebase reports the auth state', async () => {
+      // Arrange
+      const restoredUser = new User('', '', '', 'restored@test.com', '')
+      mockUseUser.getUserByEmail.mockResolvedValueOnce(restoredUser)
+      mockAuth.onAuthStateChanged.mockImplementationOnce((_auth: unknown, cb: Function) => {
+        cb({ email: 'restored@test.com' })
+      })
+      const store = useAuthStore()
+
+      // Act
+      await store.waitForAuthReady()
+
+      // Assert
+      expect(mockUseUser.getUserByEmail).toBeCalledWith('restored@test.com')
+      expect(store.isAuthenticated).toBeTruthy()
+    })
+
+    it('stays unauthenticated when firebase has no persisted session', async () => {
+      // Arrange
+      mockAuth.onAuthStateChanged.mockImplementationOnce((_auth: unknown, cb: Function) => {
+        cb(null)
+      })
+      const store = useAuthStore()
+
+      // Act
+      await store.waitForAuthReady()
+
+      // Assert
+      expect(store.isAuthenticated).toBeFalsy()
+    })
+
+    it('subscribes to firebase only once', async () => {
+      // Arrange
+      mockAuth.onAuthStateChanged.mockClear()
+      mockAuth.onAuthStateChanged.mockImplementation((_auth: unknown, cb: Function) => {
+        cb(null)
+      })
+      const store = useAuthStore()
+
+      // Act
+      await store.waitForAuthReady()
+      await store.waitForAuthReady()
+
+      // Assert
+      expect(mockAuth.onAuthStateChanged).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('register user', () => {
     it('When an error occured with firebase then return a string', async () => {
       // Arrange
