@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can only read/write their OWN user document.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      // On create/update, the document must belong to the signed-in user,
+      // and must NOT contain a plaintext password field.
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && !('password' in request.resource.data);
+
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Job applications: only the owner (userId) can read/write them.
+    match /jobApplications/{applicationId} {
+      allow read, update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+
+      // On create, the new record must be stamped with the creator's own uid.
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Comments: only the owner can read/write.
+    // Adjust the ownership field name (userId) if yours differs.
+    match /comments/{commentId} {
+      allow read, update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

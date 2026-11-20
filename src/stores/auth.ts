@@ -16,7 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
   const authenticatedUser = ref<User>();
   const isAuthenticated = computed(() => authenticatedUser.value != undefined);
 
-  const { getUserByEmail, addUser } = useUser();
+  const { getUserByUid, addUser } = useUser();
 
   let authReady: Promise<void> | undefined;
 
@@ -29,8 +29,8 @@ export const useAuthStore = defineStore('auth', () => {
       authReady = new Promise((resolve) => {
         onAuthStateChanged(auth, async (user) => {
           try {
-            if (user?.email) {
-              const foundUser = await getUserByEmail(user.email);
+            if (user) {
+              const foundUser = await getUserByUid(user.uid);
               if (foundUser) authenticatedUser.value = foundUser;
             } else {
               authenticatedUser.value = undefined;
@@ -57,8 +57,8 @@ export const useAuthStore = defineStore('auth', () => {
   ): Promise<string | undefined> {
     return setPersistence(auth, browserLocalPersistence)
       .then(async () => {
-        await signInWithEmailAndPassword(auth, email, password);
-        const user = await getUserByEmail(email);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const user = await getUserByUid(cred.user.uid);
         if (user) {
           authenticatedUser.value = user;
           return undefined;
