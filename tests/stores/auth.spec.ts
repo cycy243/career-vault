@@ -14,6 +14,7 @@ const mockAuth = setUpFirebaseAuthMock()
 
 const mockUseUser = vi.hoisted(() => ({
   getUserByEmail: vi.fn(),
+  getUserByUid: vi.fn(),
   addUser: vi.fn()
 }))
 
@@ -69,8 +70,8 @@ describe('Auth store tests', () => {
     it('when login with firebase worked but no user found in database on loginWithCredentials then return string', async () => {
       // Arrange
       const store = useAuthStore()
-      mockAuth.signInWithEmailAndPassword.mockResolvedValueOnce(vi.fn())
-      mockUseUser.getUserByEmail.mockResolvedValueOnce(undefined)
+      mockAuth.signInWithEmailAndPassword.mockResolvedValueOnce({ user: { uid: 'some-uid' } })
+      mockUseUser.getUserByUid.mockResolvedValueOnce(undefined)
 
       // Act
       const result = await store.loginWithCredentials('', '')
@@ -81,17 +82,17 @@ describe('Auth store tests', () => {
 
     it('when no error are thrown on loginWithCredentials then return undifined', async () => {
       // Arrange
-      mockUseUser.getUserByEmail.mockReset()
-      const userEmail = 'Coucou'
-      const newUser = new User('', '', '', userEmail, '')
+      mockUseUser.getUserByUid.mockReset()
+      const userUid = randomUUID()
+      const newUser = new User('', '', '', 'Coucou', '')
       const store = useAuthStore()
-      mockAuth.signInWithEmailAndPassword.mockResolvedValueOnce(vi.fn())
-      mockUseUser.getUserByEmail.mockResolvedValueOnce(newUser)
+      mockAuth.signInWithEmailAndPassword.mockResolvedValueOnce({ user: { uid: userUid } })
+      mockUseUser.getUserByUid.mockResolvedValueOnce(newUser)
       // Act
-      const result = await store.loginWithCredentials(userEmail, '')
+      const result = await store.loginWithCredentials(newUser.email, '')
 
       // Assert
-      expect(mockUseUser.getUserByEmail).toBeCalledWith(userEmail)
+      expect(mockUseUser.getUserByUid).toBeCalledWith(userUid)
       expect(result).toBeUndefined()
       expect(store.authenticatedUser).toStrictEqual(newUser)
     })
@@ -101,9 +102,10 @@ describe('Auth store tests', () => {
     it('restores the persisted user once firebase reports the auth state', async () => {
       // Arrange
       const restoredUser = new User('', '', '', 'restored@test.com', '')
-      mockUseUser.getUserByEmail.mockResolvedValueOnce(restoredUser)
+      const restoredUid = 'restored-uid'
+      mockUseUser.getUserByUid.mockResolvedValueOnce(restoredUser)
       mockAuth.onAuthStateChanged.mockImplementationOnce((_auth: unknown, cb: Function) => {
-        cb({ email: 'restored@test.com' })
+        cb({ uid: restoredUid })
       })
       const store = useAuthStore()
 
@@ -111,7 +113,7 @@ describe('Auth store tests', () => {
       await store.waitForAuthReady()
 
       // Assert
-      expect(mockUseUser.getUserByEmail).toBeCalledWith('restored@test.com')
+      expect(mockUseUser.getUserByUid).toBeCalledWith(restoredUid)
       expect(store.isAuthenticated).toBeTruthy()
     })
 

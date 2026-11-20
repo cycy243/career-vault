@@ -1,11 +1,22 @@
 import User from '@/modules/model/User';
 import { usersCollection } from '@/modules/configs/firebase';
-import { doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
 
 export const useUser = () => {
   const getUserByEmail = async (email: string): Promise<User | null> => {
     const userDoc = (await getDocs(query(usersCollection, where('email', '==', email)))).docs[0];
     if (userDoc) {
+      return {
+        ...(userDoc.data() as User),
+        uid: userDoc.id
+      };
+    }
+    return null;
+  };
+
+  const getUserByUid = async (uid: string): Promise<User | null> => {
+    const userDoc = await getDoc(doc(usersCollection, uid));
+    if (userDoc.exists()) {
       return {
         ...(userDoc.data() as User),
         uid: userDoc.id
@@ -22,5 +33,5 @@ export const useUser = () => {
     return userToAdd;
   };
 
-  return { getUserByEmail, addUser };
+  return { getUserByEmail, getUserByUid, addUser };
 };
