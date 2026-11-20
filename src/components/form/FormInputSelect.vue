@@ -51,7 +51,7 @@ export default defineComponent({
   watch: {
     modelValue: {
       handler(newVal: String) {
-        this.value = newVal.toString();
+        this.value = newVal?.toString();
       },
       immediate: true
     }
