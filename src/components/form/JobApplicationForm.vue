@@ -182,7 +182,7 @@ import { toTypedSchema } from '@vee-validate/yup';
 import * as yup from 'yup';
 import FormInput from './FormInput.vue';
 import JobApplication from '@/modules/model/jobApplication';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import FormGroupInputRadio from './FormGroupInputRadio.vue';
 import FormInputSelect from './FormInputSelect.vue';
 import FormToggle from './FormToggle.vue';
@@ -194,7 +194,14 @@ type JobApplicationFormProps = {
 // TODO: Handle spontaneous application from mail with only mail and with all information
 // TODO: Handle application on linkedin
 
-const props = defineProps<JobApplicationFormProps>();
+const props = withDefaults(defineProps<JobApplicationFormProps>(), {
+  jobApplication: {
+    positiveReponse: false,
+    sendDate: new Date(),
+    companyInformation: {}
+  } as any
+});
+
 watch(
   () => props.jobApplication,
   (newValue) => {
@@ -226,6 +233,24 @@ watch(
     deep: false
   }
 );
+
+onMounted(() => {  
+  applicationType.value = 'job_offer'
+  societyName.value = props.jobApplication.companyInformation.societyName;
+  sendDate.value = props.jobApplication.sendDate;
+  interviewDate.value = props.jobApplication.interviewDate;
+  responseDate.value = props.jobApplication.responseDate;
+  offerDetails.value = props.jobApplication.applicationLink;
+  isAccepted.value = props.jobApplication.positiveReponse;
+  jobTitle.value = props.jobApplication.jobTitle;
+  societyWebsite.value = props.jobApplication.companyInformation.societyWebsite;
+  contactEmail.value = props.jobApplication.contactInformation?.mail;
+  contactName.value = props.jobApplication.contactInformation?.name;
+  contactFunction.value = props.jobApplication.contactInformation?.function;
+  offerDetails.value = props.jobApplication.applicationLink;
+  applyMethod.value = props.jobApplication.applicationMethod
+  applyWebSite.value = props.jobApplication.webSiteApply;
+})
 
 const schema = toTypedSchema(
   yup.object({
