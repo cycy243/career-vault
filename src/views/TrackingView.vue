@@ -101,7 +101,7 @@ import { useConfirm } from 'primevue/useconfirm';
 const JobApplicationTable = defineAsyncComponent({
   loader: () => import('@/components/table/JobApplicationTable.vue'),
   loadingComponent: { render: () => h('div', { class: 'table-skeleton', 'aria-busy': 'true' }) },
-  delay: 150
+  delay: 10
 });
 
 const {
