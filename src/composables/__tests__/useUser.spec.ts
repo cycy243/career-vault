@@ -2,7 +2,7 @@ import { describe, expect, it, vi, type Mocked } from 'vitest';
 
 import { useUser } from '../useUser';
 import User from '../../modules/model/User';
-import { getDocs } from 'firebase/firestore';
+import { getDoc, getDocs } from 'firebase/firestore';
 
 vi.mock('../../src/modules/repository/implementation/firebase/firebase', () => {
   return {
@@ -16,6 +16,7 @@ vi.mock('firebase/firestore', () => {
     getFirestore: vi.fn(),
     collection: vi.fn(),
     getDocs: vi.fn(),
+    getDoc: vi.fn(),
     setDoc: vi.fn(),
     doc: vi.fn(),
     query: vi.fn(),
@@ -51,6 +52,40 @@ describe('useUser hook test', () => {
       });
 
       const foundedUser: User | null = await getUserByEmail('unexisting_user@test.test');
+
+      expect(foundedUser).toBeNull();
+    });
+  });
+
+  describe('getUserByUid tests', () => {
+    it('when getByUid finds an existing document then return the user', async () => {
+      const { getUserByUid } = useUser();
+
+      (getDoc as Mocked<any>).mockImplementation(() => {
+        return {
+          exists: () => true,
+          id: 'uid-123',
+          data: () => ({ email: 'test@test.test', name: 'Test User' })
+        };
+      });
+
+      const foundedUser: User | null = await getUserByUid('uid-123');
+
+      expect(foundedUser).not.toBeNull();
+      expect(foundedUser?.email).toEqual('test@test.test');
+      expect(foundedUser?.uid).toEqual('uid-123');
+    });
+
+    it("when getByUid don't find a document for the given uid then return null", async () => {
+      const { getUserByUid } = useUser();
+
+      (getDoc as Mocked<any>).mockImplementation(() => {
+        return {
+          exists: () => false
+        };
+      });
+
+      const foundedUser: User | null = await getUserByUid('unexisting-uid');
 
       expect(foundedUser).toBeNull();
     });
